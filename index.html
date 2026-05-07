@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S++ | FXトレーダーのための統合プラットフォーム</title>
+  <link rel="stylesheet" href="top.css">
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      S<span class="nav-logo-accent">++</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="s-plus-plus.html" class="nav-link">S++</a></li>
+
+      <li class="nav-dropdown">
+        <span class="nav-link nav-link--drop">ツール <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+        <ul class="dropdown-menu">
+          <li><a href="https://fx-lot-calculator-xi.vercel.app" target="_blank" class="dropdown-item">
+            <span class="dropdown-icon">⚡</span>FXロット計算ツール
+            <span class="dropdown-ext">↗</span>
+          </a></li>
+          <li><a href="simulator.html" class="dropdown-item dropdown-item--wip">
+            <span class="dropdown-icon">📊</span>シミュレーター
+            <span class="dropdown-badge">準備中</span>
+          </a></li>
+        </ul>
+      </li>
+
+      <li class="nav-dropdown">
+        <span class="nav-link nav-link--drop">証券会社ガイド <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+        <ul class="dropdown-menu">
+          <li><a href="brokers-overseas.html" class="dropdown-item">
+            <span class="dropdown-icon">🌍</span>海外証券会社
+          </a></li>
+          <li><a href="brokers-domestic.html" class="dropdown-item">
+            <span class="dropdown-icon">🗾</span>国内証券会社
+          </a></li>
+        </ul>
+      </li>
+
+      <li><a href="prop-firms.html" class="nav-link">プロップファームガイド</a></li>
+      <li><a href="roadmap.html" class="nav-link">ロードマップ</a></li>
+      <li><a href="about.html" class="nav-link">S++について</a></li>
+    </ul>
+    <button class="nav-hamburger" id="hamburger" aria-label="メニュー">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── Mobile Menu ── -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="s-plus-plus.html" class="mobile-link">S++</a>
+  <div class="mobile-group-label">ツール</div>
+  <a href="https://fx-lot-calculator-xi.vercel.app" target="_blank" class="mobile-link mobile-link--sub">FXロット計算ツール ↗</a>
+  <a href="simulator.html" class="mobile-link mobile-link--sub mobile-link--wip">シミュレーター（準備中）</a>
+  <div class="mobile-group-label">証券会社ガイド</div>
+  <a href="brokers-overseas.html" class="mobile-link mobile-link--sub">海外証券会社</a>
+  <a href="brokers-domestic.html" class="mobile-link mobile-link--sub">国内証券会社</a>
+  <a href="prop-firms.html" class="mobile-link">プロップファームガイド</a>
+  <a href="roadmap.html" class="mobile-link">ロードマップ</a>
+  <a href="about.html" class="mobile-link">S++について</a>
+</div>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-eyebrow">TRADING PLATFORM</div>
+    <h1 class="hero-title">FXトレーダーのための<br>統合プラットフォーム</h1>
+    <p class="hero-sub">ツール・学習・情報を一元管理</p>
+    <div class="hero-actions">
+      <a href="s-plus-plus.html" class="btn btn--primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        S++を開く
+      </a>
+      <a href="#quick-access" class="btn btn--ghost">機能を見る</a>
+    </div>
+  </div>
+  <div class="hero-grid-overlay"></div>
+</section>
+
+<!-- ── Quick Access ── -->
+<section class="section" id="quick-access">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">QUICK ACCESS</div>
+      <h2 class="section-title">主要ツール</h2>
+    </div>
+    <div class="qa-grid">
+
+      <a href="s-plus-plus.html" class="qa-card qa-card--primary">
+        <div class="qa-card-accent"></div>
+        <div class="qa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <div class="qa-info">
+          <span class="qa-title">S++システム</span>
+          <span class="qa-desc">通貨強弱・スプレッド・中銀カレンダー・ライブモジュール</span>
+        </div>
+        <span class="qa-badge qa-badge--live">LIVE</span>
+      </a>
+
+      <a href="https://fx-lot-calculator-xi.vercel.app" target="_blank" class="qa-card">
+        <div class="qa-card-accent"></div>
+        <div class="qa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3"/>
+            <path d="M9 15l8-8M13 7h4v4"/>
+          </svg>
+        </div>
+        <div class="qa-info">
+          <span class="qa-title">FXロット計算ツール</span>
+          <span class="qa-desc">リスク管理・適切なロットサイズを即座に計算</span>
+        </div>
+        <span class="qa-badge">TOOL</span>
+      </a>
+
+      <div class="qa-card qa-card--wip">
+        <div class="qa-card-accent"></div>
+        <div class="qa-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 3v18h18"/>
+            <path d="M7 16l4-4 4 4 5-5"/>
+          </svg>
+        </div>
+        <div class="qa-info">
+          <span class="qa-title">シミュレーター</span>
+          <span class="qa-desc">バックテスト・戦略シミュレーション</span>
+        </div>
+        <span class="qa-badge qa-badge--wip">準備中</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Broker Guide ── -->
+<section class="section section--alt">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">BROKER GUIDE</div>
+      <h2 class="section-title">証券会社ガイド</h2>
+      <p class="section-desc">FXトレードに適した証券会社を比較・検討するための情報をまとめています。</p>
+    </div>
+    <div class="broker-tabs">
+      <button class="broker-tab broker-tab--active" data-tab="overseas">海外証券会社</button>
+      <button class="broker-tab" data-tab="domestic">国内証券会社</button>
+    </div>
+    <div class="broker-grid" id="broker-overseas">
+
+      <div class="broker-card">
+        <div class="broker-card-header">
+          <div class="broker-logo-placeholder">IC</div>
+          <div class="broker-meta">
+            <span class="broker-name">IC Markets</span>
+            <span class="broker-country">🇦🇺 オーストラリア</span>
+          </div>
+          <span class="broker-rating">★ 4.8</span>
+        </div>
+        <div class="broker-tags">
+          <span class="broker-tag">低スプレッド</span>
+          <span class="broker-tag">ECN</span>
+          <span class="broker-tag">MT4/MT5</span>
+        </div>
+        <p class="broker-desc">業界最低水準のスプレッドを誇るECNブローカー。高速約定と深い流動性が特徴。</p>
+        <a href="brokers-overseas.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+      <div class="broker-card">
+        <div class="broker-card-header">
+          <div class="broker-logo-placeholder">XM</div>
+          <div class="broker-meta">
+            <span class="broker-name">XM Trading</span>
+            <span class="broker-country">🇨🇾 キプロス</span>
+          </div>
+          <span class="broker-rating">★ 4.5</span>
+        </div>
+        <div class="broker-tags">
+          <span class="broker-tag">ボーナス</span>
+          <span class="broker-tag">日本語対応</span>
+          <span class="broker-tag">MT4/MT5</span>
+        </div>
+        <p class="broker-desc">日本人トレーダーに人気の海外ブローカー。充実したボーナスと日本語サポートが魅力。</p>
+        <a href="brokers-overseas.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+      <div class="broker-card">
+        <div class="broker-card-header">
+          <div class="broker-logo-placeholder">TF</div>
+          <div class="broker-meta">
+            <span class="broker-name">Tickmill</span>
+            <span class="broker-country">🇸🇨 セーシェル</span>
+          </div>
+          <span class="broker-rating">★ 4.6</span>
+        </div>
+        <div class="broker-tags">
+          <span class="broker-tag">低手数料</span>
+          <span class="broker-tag">ECN</span>
+          <span class="broker-tag">規制</span>
+        </div>
+        <p class="broker-desc">FCA規制下の信頼性高いブローカー。競争力のある手数料体系とプロ向けの環境。</p>
+        <a href="brokers-overseas.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+    </div>
+    <div class="broker-grid broker-grid--hidden" id="broker-domestic">
+
+      <div class="broker-card">
+        <div class="broker-card-header">
+          <div class="broker-logo-placeholder">GM</div>
+          <div class="broker-meta">
+            <span class="broker-name">GMOクリック証券</span>
+            <span class="broker-country">🗾 日本</span>
+          </div>
+          <span class="broker-rating">★ 4.4</span>
+        </div>
+        <div class="broker-tags">
+          <span class="broker-tag">低スプレッド</span>
+          <span class="broker-tag">国内規制</span>
+          <span class="broker-tag">スマホ対応</span>
+        </div>
+        <p class="broker-desc">国内最安水準のスプレッドと充実のツール群。初心者から上級者まで対応する総合力。</p>
+        <a href="brokers-domestic.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+      <div class="broker-card">
+        <div class="broker-card-header">
+          <div class="broker-logo-placeholder">DM</div>
+          <div class="broker-meta">
+            <span class="broker-name">DMM FX</span>
+            <span class="broker-country">🗾 日本</span>
+          </div>
+          <span class="broker-rating">★ 4.3</span>
+        </div>
+        <div class="broker-tags">
+          <span class="broker-tag">業界最狭水準</span>
+          <span class="broker-tag">全通貨一定SP</span>
+          <span class="broker-tag">取引量No.1</span>
+        </div>
+        <p class="broker-desc">全通貨ペア一定スプレッドが特徴。シンプルで使いやすいプラットフォーム。</p>
+        <a href="brokers-domestic.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+      <div class="broker-card">
+        <div class="broker-card-header">
+          <div class="broker-logo-placeholder">SB</div>
+          <div class="broker-meta">
+            <span class="broker-name">SBI FXトレード</span>
+            <span class="broker-country">🗾 日本</span>
+          </div>
+          <span class="broker-rating">★ 4.2</span>
+        </div>
+        <div class="broker-tags">
+          <span class="broker-tag">1通貨取引</span>
+          <span class="broker-tag">高金利スワップ</span>
+          <span class="broker-tag">SBI系列</span>
+        </div>
+        <p class="broker-desc">1通貨単位から取引可能で少額投資に最適。スワップポイントの高さも魅力。</p>
+        <a href="brokers-domestic.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+    </div>
+    <div class="section-more">
+      <a href="brokers-overseas.html" class="btn btn--ghost" id="broker-more-link">すべての証券会社を見る</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Prop Firm Guide ── -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-label">PROP FIRM GUIDE</div>
+      <h2 class="section-title">プロップファームガイド</h2>
+      <p class="section-desc">資金提供型ファンドの評価・チャレンジ攻略情報をまとめています。</p>
+    </div>
+    <div class="prop-grid">
+
+      <div class="prop-card">
+        <div class="prop-card-top">
+          <div class="prop-logo-placeholder">FTMO</div>
+          <div class="prop-status prop-status--active">人気No.1</div>
+        </div>
+        <div class="prop-info">
+          <span class="prop-name">FTMO</span>
+          <span class="prop-origin">🇨🇿 チェコ</span>
+        </div>
+        <div class="prop-stats">
+          <div class="prop-stat">
+            <span class="prop-stat-label">最大資金</span>
+            <span class="prop-stat-val">$200,000</span>
+          </div>
+          <div class="prop-stat">
+            <span class="prop-stat-label">利益配分</span>
+            <span class="prop-stat-val">80–90%</span>
+          </div>
+          <div class="prop-stat">
+            <span class="prop-stat-label">ドローダウン</span>
+            <span class="prop-stat-val">10%</span>
+          </div>
+        </div>
+        <div class="prop-tags">
+          <span class="prop-tag">2段階評価</span>
+          <span class="prop-tag">スケーリング</span>
+          <span class="prop-tag">実績豊富</span>
+        </div>
+        <a href="prop-firms.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+      <div class="prop-card">
+        <div class="prop-card-top">
+          <div class="prop-logo-placeholder">E8</div>
+          <div class="prop-status">注目</div>
+        </div>
+        <div class="prop-info">
+          <span class="prop-name">E8 Funding</span>
+          <span class="prop-origin">🇺🇸 アメリカ</span>
+        </div>
+        <div class="prop-stats">
+          <div class="prop-stat">
+            <span class="prop-stat-label">最大資金</span>
+            <span class="prop-stat-val">$300,000</span>
+          </div>
+          <div class="prop-stat">
+            <span class="prop-stat-label">利益配分</span>
+            <span class="prop-stat-val">80%</span>
+          </div>
+          <div class="prop-stat">
+            <span class="prop-stat-label">ドローダウン</span>
+            <span class="prop-stat-val">8%</span>
+          </div>
+        </div>
+        <div class="prop-tags">
+          <span class="prop-tag">柔軟なルール</span>
+          <span class="prop-tag">週次出金</span>
+          <span class="prop-tag">コピートレード可</span>
+        </div>
+        <a href="prop-firms.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+      <div class="prop-card">
+        <div class="prop-card-top">
+          <div class="prop-logo-placeholder">MFF</div>
+          <div class="prop-status">老舗</div>
+        </div>
+        <div class="prop-info">
+          <span class="prop-name">My Forex Funds</span>
+          <span class="prop-origin">🇨🇦 カナダ</span>
+        </div>
+        <div class="prop-stats">
+          <div class="prop-stat">
+            <span class="prop-stat-label">最大資金</span>
+            <span class="prop-stat-val">$300,000</span>
+          </div>
+          <div class="prop-stat">
+            <span class="prop-stat-label">利益配分</span>
+            <span class="prop-stat-val">75–85%</span>
+          </div>
+          <div class="prop-stat">
+            <span class="prop-stat-label">ドローダウン</span>
+            <span class="prop-stat-val">12%</span>
+          </div>
+        </div>
+        <div class="prop-tags">
+          <span class="prop-tag">即時ファンド</span>
+          <span class="prop-tag">低ハードル</span>
+          <span class="prop-tag">実績多数</span>
+        </div>
+        <a href="prop-firms.html" class="broker-btn">詳細を見る</a>
+      </div>
+
+    </div>
+    <div class="section-more">
+      <a href="prop-firms.html" class="btn btn--ghost">すべてのプロップファームを見る</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">S<span class="footer-logo-accent">++</span></span>
+      <span class="footer-tagline">FXトレーダーのための統合プラットフォーム</span>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <span class="footer-col-title">システム</span>
+        <a href="s-plus-plus.html" class="footer-link">S++</a>
+        <a href="roadmap.html" class="footer-link">ロードマップ</a>
+        <a href="about.html" class="footer-link">S++について</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">ツール</span>
+        <a href="https://fx-lot-calculator-xi.vercel.app" target="_blank" class="footer-link">FXロット計算ツール</a>
+        <a href="simulator.html" class="footer-link footer-link--wip">シミュレーター（準備中）</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">ガイド</span>
+        <a href="brokers-overseas.html" class="footer-link">海外証券会社</a>
+        <a href="brokers-domestic.html" class="footer-link">国内証券会社</a>
+        <a href="prop-firms.html" class="footer-link">プロップファーム</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 S++ — All rights reserved.</span>
+    <a href="privacy.html" class="footer-link" style="font-size:.65rem;color:var(--text-3);">広告ポリシー</a>
+  </div>
+  <div class="footer-affiliate">
+    ※本サイトの一部リンクにはアフィリエイトリンクが含まれます。詳細は<a href="privacy.html" class="footer-affiliate-link">広告ポリシー</a>をご覧ください。
+  </div>
+</footer>
+
+<script src="top.js"></script>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S++ — Tinkerbell</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:   #0a0c0f;
+      --bg-panel:  #0d1118;
+      --bg-card:   #111720;
+      --bg-user:   #0c1e2e;
+      --border:    #1b2535;
+      --accent:    #00c8ff;
+      --accent2:   #00ffaa;
+      --gold:      #ffd700;
+      --gold-dim:  rgba(255,215,0,.65);
+      --text-1:    #e2ecff;
+      --text-2:    #6a8099;
+      --text-3:    #2e3f52;
+      --warn:      #ff9900;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg-base);
+      color: var(--text-1);
+      font-family: 'SF Mono','Fira Code','Consolas',monospace;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-image:
+        radial-gradient(ellipse 60% 35% at 50% 0%, rgba(255,215,0,.04) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 25% at 90% 100%, rgba(0,200,255,.03) 0%, transparent 50%);
+    }
+
+    body::after {
+      content: '';
+      position: fixed; inset: 0; pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.022) 2px, rgba(0,0,0,.022) 4px);
+      z-index: 9999;
+    }
+
+    /* ── Header ── */
+    .header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,.3);
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tb-avatar-sm {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 34%,
+        rgba(255,240,160,.2) 0%,
+        rgba(0,200,255,.08) 55%,
+        rgba(0,0,0,.5) 100%);
+      border: 1px solid rgba(255,215,0,.35);
+      box-shadow: 0 0 10px rgba(255,215,0,.15);
+      display: flex; align-items: center; justify-content: center;
+      animation: softGlow 4s ease-in-out infinite;
+    }
+
+    .tb-avatar-sm svg {
+      width: 14px; height: 14px;
+      color: var(--gold);
+      filter: drop-shadow(0 0 4px rgba(255,215,0,.8));
+    }
+
+    @keyframes softGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(255,215,0,.15); }
+      50%       { box-shadow: 0 0 18px rgba(255,215,0,.28), 0 0 30px rgba(0,200,255,.08); }
+    }
+
+    .header-title {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .header-name {
+      font-size: .82rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: .04em;
+    }
+
+    .header-sub {
+      font-size: .6rem;
+      color: var(--text-3);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 10px; }
+
+    .demo-badge {
+      font-size: .58rem;
+      letter-spacing: .14em;
+      padding: 3px 8px;
+      border-radius: 2px;
+      background: rgba(255,153,0,.1);
+      border: 1px solid rgba(255,153,0,.3);
+      color: var(--warn);
+    }
+
+    .back-link {
+      font-size: .68rem;
+      color: var(--text-2);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 4px 10px;
+      transition: color .15s, border-color .15s;
+    }
+    .back-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ── Messages ── */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .messages::-webkit-scrollbar { width: 4px; }
+    .messages::-webkit-scrollbar-track { background: transparent; }
+    .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .msg {
+      display: flex;
+      gap: 10px;
+      max-width: 84%;
+      animation: fadeUp .22s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg--tb   { align-self: flex-start; }
+    .msg--user { align-self: flex-end; flex-direction: row-reverse; }
+
+    /* Avatar */
+    .msg-avatar {
+      flex-shrink: 0;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 18px;
+    }
+
+    .msg--tb .msg-avatar {
+      background: radial-gradient(circle at 38% 34%,
+        rgba(255,240,160,.22) 0%,
+        rgba(0,200,255,.08) 55%,
+        rgba(0,0,0,.5) 100%);
+      border: 1px solid rgba(255,215,0,.3);
+      box-shadow: 0 0 8px rgba(255,215,0,.12);
+    }
+
+    .msg--tb .msg-avatar svg {
+      width: 13px; height: 13px;
+      color: var(--gold);
+      filter: drop-shadow(0 0 3px rgba(255,215,0,.7));
+    }
+
+    .msg--user .msg-avatar {
+      background: rgba(0,200,255,.08);
+      border: 1px solid rgba(0,200,255,.2);
+      font-size: .6rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* Bubble */
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .msg--user .msg-content { align-items: flex-end; }
+
+    .msg-sender {
+      font-size: .6rem;
+      letter-spacing: .06em;
+      padding: 0 2px;
+    }
+    .msg--tb   .msg-sender { color: var(--gold-dim); }
+    .msg--user .msg-sender { color: rgba(0,200,255,.6); }
+
+    .msg-bubble {
+      padding: 11px 15px;
+      border-radius: 8px;
+      line-height: 1.7;
+      font-size: .78rem;
+    }
+
+    .msg--tb .msg-bubble {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 2px solid rgba(255,215,0,.35);
+      color: var(--text-1);
+      border-top-left-radius: 2px;
+    }
+
+    .msg--user .msg-bubble {
+      background: var(--bg-user);
+      border: 1px solid rgba(0,200,255,.15);
+      border-right: 2px solid rgba(0,200,255,.35);
+      color: var(--text-1);
+      border-top-right-radius: 2px;
+    }
+
+    .msg-time {
+      font-size: .58rem;
+      color: var(--text-3);
+      padding: 0 2px;
+    }
+
+    /* Typing */
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+      padding: 14px 15px;
+      align-items: center;
+    }
+    .typing-dots span {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--gold);
+      opacity: .4;
+      animation: typingBlink 1.3s ease-in-out infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: .2s; }
+    .typing-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes typingBlink { 0%,100% { opacity: .2; } 50% { opacity: .9; } }
+
+    /* ── Input ── */
+    .input-area {
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,.22);
+    }
+
+    .input-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .input-field {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text-1);
+      font-family: inherit;
+      font-size: .78rem;
+      padding: 10px 14px;
+      resize: none;
+      min-height: 42px;
+      max-height: 120px;
+      line-height: 1.5;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .input-field::placeholder { color: var(--text-3); }
+    .input-field:focus { border-color: rgba(255,215,0,.3); }
+
+    .send-btn {
+      background: rgba(255,215,0,.08);
+      border: 1px solid rgba(255,215,0,.25);
+      border-radius: 5px;
+      color: var(--gold);
+      cursor: pointer;
+      padding: 10px 16px;
+      font-family: inherit;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      transition: background .15s, border-color .15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .send-btn:hover { background: rgba(255,215,0,.15); border-color: rgba(255,215,0,.45); }
+    .send-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .send-btn svg { width: 12px; height: 12px; }
+
+    .demo-notice {
+      text-align: center;
+      font-size: .6rem;
+      color: var(--text-3);
+      padding: 0 20px 10px;
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="tb-avatar-sm">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l1.8 7.7L22 12l-8.2 2.3L12 22l-1.8-7.7L2 12l8.2-2.3z"/>
+        </svg>
+      </div>
+      <div class="header-title">
+        <span class="header-name">Tinkerbell</span>
+        <span class="header-sub">S++ ナレッジアシスタント</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="demo-badge">DEMO MODE</span>
+      <a class="back-link" href="index.html">← ダッシュボード</a>
+    </div>
+  </header>
+
+  <div class="messages" id="messages"></div>
+
+  <div class="input-area">
+    <div class="input-inner">
+      <textarea
+        class="input-field"
+        id="input"
+        placeholder="何か、問いかけてみてください..."
+        rows="1"
+      ></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l1.8 7.7L22 12l-8.2 2.3L12 22l-1.8-7.7L2 12l8.2-2.3z"/>
+        </svg>
+        送信
+      </button>
+    </div>
+    <div class="demo-notice">※現在デモモードです。本番接続は開発中。</div>
+  </div>
+
+  <script>
+    const RESPONSES = [
+      '波動の長さについて、ナレッジシステムにはこんな定義があります。長さとは値幅のこと。あなたはどう解釈しますか？',
+      '環境認識の5ステップ、どのステップが一番難しいと感じますか？',
+      'セットアップの評価基準、自分なりの軸はありますか？',
+      'その問いは、とても本質的だと思います。もう少し掘り下げてみましょう。',
+      '現在私はデモモードです。本番接続後は、ナレッジシステム全体を参照してお答えできるようになります。',
+      'そういう見方もできますね。あなたはどちらの解釈が、しっくりきますか？',
+      '今の相場、どう感じましたか？言葉にしてみると、見えてくるものがあるかもしれません。',
+      '答えを急がなくていいと思います。何が引っかかっているのかを、一緒に整理してみましょう。',
+      '支配波動の確認、どのくらいの時間軸まで確認していますか？',
+      'トレード後の振り返り、どんな視点で行っていますか？',
+    ];
+
+    const msgsEl  = document.getElementById('messages');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send-btn');
+
+    function nowStr() {
+      const d = new Date();
+      return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function appendMsg(text, role) {
+      const wrap = document.createElement('div');
+      wrap.className = `msg msg--${role}`;
+
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+
+      if (role === 'tb') {
+        avatar.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l1.8 7.7L22 12l-8.2 2.3L12 22l-1.8-7.7L2 12l8.2-2.3z"/>
+        </svg>`;
+      } else {
+        avatar.textContent = 'YOU';
+      }
+
+      const content = document.createElement('div');
+      content.className = 'msg-content';
+
+      const sender = document.createElement('div');
+      sender.className = 'msg-sender';
+      sender.textContent = role === 'tb' ? 'Tinkerbell' : 'You';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.textContent = text;
+
+      const time = document.createElement('div');
+      time.className = 'msg-time';
+      time.textContent = nowStr();
+
+      content.appendChild(sender);
+      content.appendChild(bubble);
+      content.appendChild(time);
+
+      wrap.appendChild(avatar);
+      wrap.appendChild(content);
+      msgsEl.appendChild(wrap);
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+    }
+
+    function showTyping() {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg msg--tb';
+      wrap.id = 'typing';
+
+      const avatar = document.createElement('div');
+      avatar.className = 'msg-avatar';
+      avatar.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2l1.8 7.7L22 12l-8.2 2.3L12 22l-1.8-7.7L2 12l8.2-2.3z"/>
+      </svg>`;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble typing-dots';
+      bubble.innerHTML = '<span></span><span></span><span></span>';
+
+      wrap.appendChild(avatar);
+      wrap.appendChild(bubble);
+      msgsEl.appendChild(wrap);
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+    }
+
+    function hideTyping() {
+      const el = document.getElementById('typing');
+      if (el) el.remove();
+    }
+
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text || sendBtn.disabled) return;
+
+      inputEl.value = '';
+      inputEl.style.height = '';
+      sendBtn.disabled = true;
+
+      appendMsg(text, 'user');
+      showTyping();
+
+      await new Promise(r => setTimeout(r, 1000 + Math.random() * 700));
+
+      hideTyping();
+      const reply = RESPONSES[Math.floor(Math.random() * RESPONSES.length)];
+      appendMsg(reply, 'tb');
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+
+    inputEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    inputEl.addEventListener('input', () => {
+      inputEl.style.height = '';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+    });
+
+    // Welcome message
+    appendMsg('…こんにちは。Tinkerbell です。S++ の案内役として、静かにここにいます。何か、問いかけてみませんか？', 'tb');
+  </script>
+
+</body>
+</html>

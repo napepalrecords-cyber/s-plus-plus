@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S++ | ロードマップ</title>
+  <link rel="stylesheet" href="top.css">
+  <style>
+    .roadmap-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    .roadmap-phase {
+      margin-bottom: 48px;
+    }
+
+    .phase-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .phase-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .phase-title {
+      font-size: .95rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+
+    .phase-count {
+      margin-left: auto;
+      font-size: .62rem;
+      letter-spacing: .12em;
+      padding: 3px 9px;
+      border-radius: 3px;
+    }
+
+    /* phase color tokens */
+    .phase--done   .phase-title { color: #00ffaa; }
+    .phase--done   .phase-count { background: rgba(0,255,170,.1); border: 1px solid rgba(0,255,170,.3); color: #00ffaa; }
+    .phase--active .phase-title { color: #00c8ff; }
+    .phase--active .phase-count { background: rgba(0,200,255,.1); border: 1px solid rgba(0,200,255,.3); color: #00c8ff; }
+    .phase--standby .phase-title { color: #ffd700; }
+    .phase--standby .phase-count { background: rgba(255,215,0,.1); border: 1px solid rgba(255,215,0,.3); color: #ffd700; }
+    .phase--idea   .phase-title { color: #9c88ff; }
+    .phase--idea   .phase-count { background: rgba(156,136,255,.1); border: 1px solid rgba(156,136,255,.3); color: #9c88ff; }
+
+    .rm-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .rm-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      transition: border-color .15s, background .15s;
+    }
+    .rm-item:hover { background: var(--bg-card-hv); }
+
+    .phase--done   .rm-item { border-left: 3px solid rgba(0,255,170,.5); }
+    .phase--active .rm-item { border-left: 3px solid rgba(0,200,255,.5); }
+    .phase--standby .rm-item { border-left: 3px solid rgba(255,215,0,.4); }
+    .phase--idea   .rm-item { border-left: 3px solid rgba(156,136,255,.4); }
+
+    .rm-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .phase--done    .rm-dot { background: #00ffaa; box-shadow: 0 0 6px rgba(0,255,170,.6); }
+    .phase--active  .rm-dot { background: #00c8ff; box-shadow: 0 0 6px rgba(0,200,255,.6); animation: pulse 2s ease-in-out infinite; }
+    .phase--standby .rm-dot { background: #ffd700; box-shadow: 0 0 6px rgba(255,215,0,.4); }
+    .phase--idea    .rm-dot { background: #9c88ff; box-shadow: 0 0 6px rgba(156,136,255,.4); }
+
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.35} }
+
+    .rm-body { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+
+    .rm-title {
+      font-size: .83rem;
+      font-weight: 700;
+      color: var(--text-1);
+    }
+
+    .rm-desc {
+      font-size: .72rem;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    .rm-tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: .58rem;
+      letter-spacing: .1em;
+      padding: 2px 8px;
+      border-radius: 3px;
+      margin-left: auto;
+      flex-shrink: 0;
+      align-self: flex-start;
+    }
+    .tag--done    { background: rgba(0,255,170,.1); border: 1px solid rgba(0,255,170,.3); color: #00ffaa; }
+    .tag--active  { background: rgba(0,200,255,.1); border: 1px solid rgba(0,200,255,.3); color: #00c8ff; }
+    .tag--standby { background: rgba(255,215,0,.1);  border: 1px solid rgba(255,215,0,.3);  color: #ffd700; }
+    .tag--idea    { background: rgba(156,136,255,.1);border: 1px solid rgba(156,136,255,.3);color: #9c88ff; }
+
+    /* timeline connector */
+    .roadmap-timeline {
+      position: relative;
+    }
+    .roadmap-timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom,
+        rgba(0,255,170,.4) 0%,
+        rgba(0,200,255,.3) 30%,
+        rgba(255,215,0,.2) 60%,
+        rgba(156,136,255,.15) 100%
+      );
+      pointer-events: none;
+    }
+
+    .roadmap-phase + .roadmap-phase {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">S<span class="nav-logo-accent">++</span></a>
+    <ul class="nav-links">
+      <li><a href="s-plus-plus.html" class="nav-link">S++</a></li>
+      <li class="nav-dropdown">
+        <span class="nav-link nav-link--drop">ツール <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+        <ul class="dropdown-menu">
+          <li><a href="https://fx-lot-calculator-xi.vercel.app" target="_blank" class="dropdown-item"><span class="dropdown-icon">⚡</span>FXロット計算ツール<span class="dropdown-ext">↗</span></a></li>
+          <li><a href="simulator.html" class="dropdown-item dropdown-item--wip"><span class="dropdown-icon">📊</span>シミュレーター<span class="dropdown-badge">準備中</span></a></li>
+        </ul>
+      </li>
+      <li class="nav-dropdown">
+        <span class="nav-link nav-link--drop">証券会社ガイド <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></span>
+        <ul class="dropdown-menu">
+          <li><a href="brokers-overseas.html" class="dropdown-item"><span class="dropdown-icon">🌍</span>海外証券会社</a></li>
+          <li><a href="brokers-domestic.html" class="dropdown-item"><span class="dropdown-icon">🗾</span>国内証券会社</a></li>
+        </ul>
+      </li>
+      <li><a href="prop-firms.html" class="nav-link">プロップファームガイド</a></li>
+      <li><a href="roadmap.html" class="nav-link" style="color:var(--accent)">ロードマップ</a></li>
+      <li><a href="about.html" class="nav-link">S++について</a></li>
+    </ul>
+    <button class="nav-hamburger" id="hamburger" aria-label="メニュー"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ── Mobile Menu ── -->
+<div class="mobile-menu" id="mobile-menu">
+  <a href="s-plus-plus.html" class="mobile-link">S++</a>
+  <div class="mobile-group-label">ツール</div>
+  <a href="https://fx-lot-calculator-xi.vercel.app" target="_blank" class="mobile-link mobile-link--sub">FXロット計算ツール ↗</a>
+  <a href="simulator.html" class="mobile-link mobile-link--sub mobile-link--wip">シミュレーター（準備中）</a>
+  <div class="mobile-group-label">証券会社ガイド</div>
+  <a href="brokers-overseas.html" class="mobile-link mobile-link--sub">海外証券会社</a>
+  <a href="brokers-domestic.html" class="mobile-link mobile-link--sub">国内証券会社</a>
+  <a href="prop-firms.html" class="mobile-link">プロップファームガイド</a>
+  <a href="roadmap.html" class="mobile-link">ロードマップ</a>
+  <a href="about.html" class="mobile-link">S++について</a>
+</div>
+
+<!-- ── Page Header ── -->
+<div style="padding-top: var(--nav-h);">
+  <div style="max-width:800px;margin:0 auto;padding:56px 24px 40px;">
+    <div class="section-label" style="margin-bottom:12px;">ROADMAP</div>
+    <h1 style="font-size:2rem;font-weight:800;letter-spacing:-.02em;color:var(--text-1);margin-bottom:10px;">開発ロードマップ</h1>
+    <p style="font-size:.82rem;color:var(--text-2);line-height:1.7;">S++の開発状況と今後の予定をまとめています。フィードバックや機能リクエストはお問い合わせからどうぞ。</p>
+  </div>
+</div>
+
+<!-- ── Roadmap Content ── -->
+<div class="roadmap-wrap">
+  <div class="roadmap-timeline">
+
+    <!-- ✅ 完成 -->
+    <div class="roadmap-phase phase--done">
+      <div class="phase-header">
+        <span class="phase-icon">✅</span>
+        <span class="phase-title">完成・公開済み</span>
+        <span class="phase-count">4 items</span>
+      </div>
+      <div class="rm-list">
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">FXロット計算ツール</span>
+            <span class="rm-desc">リスク管理に基づく適切なロットサイズを即座に計算できるツール。外部サービスとして公開済み。</span>
+          </div>
+          <span class="rm-tag tag--done">公開済み</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">相場ウィジェット</span>
+            <span class="rm-desc">通貨強弱メーター・スプレッド一覧・中銀カレンダー・COTレポートのライブモジュール群。</span>
+          </div>
+          <span class="rm-tag tag--done">公開済み</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">S++ ダッシュボード v0.3</span>
+            <span class="rm-desc">通貨強弱・スプレッド・中銀カレンダー・COTレポート・各種モジュール・シミュレーター機能を統合したダッシュボード。</span>
+          </div>
+          <span class="rm-tag tag--done">公開済み</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">S++ TOPページ</span>
+            <span class="rm-desc">証券会社ガイド・プロップファームガイド・各ツールへのナビゲーションを備えたポータルページ。</span>
+          </div>
+          <span class="rm-tag tag--done">公開済み</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 🔄 開発中 -->
+    <div class="roadmap-phase phase--active">
+      <div class="phase-header">
+        <span class="phase-icon">🔄</span>
+        <span class="phase-title">開発中</span>
+        <span class="phase-count">2 items</span>
+      </div>
+      <div class="rm-list">
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">シミュレーター（期待値・目標達成・オプティマルF）</span>
+            <span class="rm-desc">期待値計算・目標達成シミュレーション（モンテカルロ法）・ケリー基準によるオプティマルF計算の3モジュール。ダッシュボードに統合予定。</span>
+          </div>
+          <span class="rm-tag tag--active">開発中</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">証券会社・プロップファームガイド</span>
+            <span class="rm-desc">海外・国内証券会社、プロップファームの詳細比較ページ。評価基準・スペック・申し込み情報を整備中。</span>
+          </div>
+          <span class="rm-tag tag--active">開発中</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 📋 開発スタンバイ -->
+    <div class="roadmap-phase phase--standby">
+      <div class="phase-header">
+        <span class="phase-icon">📋</span>
+        <span class="phase-title">開発スタンバイ</span>
+        <span class="phase-count">3 items</span>
+      </div>
+      <div class="rm-list">
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">相場分析システム</span>
+            <span class="rm-desc">チャート上の箇所を指定すると、S++のwikiに登録された理論に基づいた相場分析結果と分析プロセスを出力するシステム。</span>
+          </div>
+          <span class="rm-tag tag--standby">スタンバイ</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">ジャーナルシステム</span>
+            <span class="rm-desc">取引記録・振り返り・セットアップ評価を統合したトレードジャーナル。成績の可視化と改善サイクルをサポート。</span>
+          </div>
+          <span class="rm-tag tag--standby">スタンバイ</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">スコアリングシステム</span>
+            <span class="rm-desc">セットアップ品質・実行精度・成績をA++〜Cでスコアリング。成長トラッキングと習熟度テストを統合。</span>
+          </div>
+          <span class="rm-tag tag--standby">スタンバイ</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 💡 構想中 -->
+    <div class="roadmap-phase phase--idea">
+      <div class="phase-header">
+        <span class="phase-icon">💡</span>
+        <span class="phase-title">構想中</span>
+        <span class="phase-count">5 items</span>
+      </div>
+      <div class="rm-list">
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">バックテストシステム</span>
+            <span class="rm-desc">戦略定義を入力してAIが過去データで検証。定義リストから選択してバックテストを実行できる仕組み。</span>
+          </div>
+          <span class="rm-tag tag--idea">構想中</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">マーケットプレイス</span>
+            <span class="rm-desc">検証済みの戦略・EAを売買できるマーケット。先行者が定義の販売権を持つ独自の権利システムを採用。</span>
+          </div>
+          <span class="rm-tag tag--idea">構想中</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">AIトレードパートナー</span>
+            <span class="rm-desc">リアルタイム相場をwikiの理論で常時分析し、条件成立時にあなたに通知するシステム。S++の究極形態。</span>
+          </div>
+          <span class="rm-tag tag--idea">構想中</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">SEO半自動化システム</span>
+            <span class="rm-desc">コンテンツの最適化・内部リンク提案・検索ボリューム分析を半自動化するサイト運営支援ツール。</span>
+          </div>
+          <span class="rm-tag tag--idea">構想中</span>
+        </div>
+
+        <div class="rm-item">
+          <span class="rm-dot"></span>
+          <div class="rm-body">
+            <span class="rm-title">プロクローン</span>
+            <span class="rm-desc">S++のナレッジシステム構築メソッドを他のトレーダーにも提供するコンサルティングプログラム。</span>
+          </div>
+          <span class="rm-tag tag--idea">構想中</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /.roadmap-timeline -->
+</div><!-- /.roadmap-wrap -->
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="footer-logo">S<span class="footer-logo-accent">++</span></span>
+      <span class="footer-tagline">FXトレーダーのための統合プラットフォーム</span>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <span class="footer-col-title">システム</span>
+        <a href="s-plus-plus.html" class="footer-link">S++</a>
+        <a href="roadmap.html" class="footer-link">ロードマップ</a>
+        <a href="about.html" class="footer-link">S++について</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">ツール</span>
+        <a href="https://fx-lot-calculator-xi.vercel.app" target="_blank" class="footer-link">FXロット計算ツール</a>
+        <a href="simulator.html" class="footer-link footer-link--wip">シミュレーター（準備中）</a>
+      </div>
+      <div class="footer-col">
+        <span class="footer-col-title">ガイド</span>
+        <a href="brokers-overseas.html" class="footer-link">海外証券会社</a>
+        <a href="brokers-domestic.html" class="footer-link">国内証券会社</a>
+        <a href="prop-firms.html" class="footer-link">プロップファーム</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 S++ — All rights reserved.</span>
+    <a href="privacy.html" class="footer-link" style="font-size:.65rem;color:var(--text-3);">広告ポリシー</a>
+  </div>
+  <div class="footer-affiliate">
+    ※本サイトの一部リンクにはアフィリエイトリンクが含まれます。詳細は<a href="privacy.html" class="footer-affiliate-link">広告ポリシー</a>をご覧ください。
+  </div>
+</footer>
+
+<script src="top.js"></script>
+</body>
+</html>

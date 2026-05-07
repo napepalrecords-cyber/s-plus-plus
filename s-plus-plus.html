@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S++</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="header-left">
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M5 12l7 7M5 12l7-7"/></svg>
+        TOP
+      </a>
+      <a href="roadmap.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+        MAP
+      </a>
+      <div class="logo">
+        <span class="logo-text">S<span class="logo-accent">++</span></span>
+        <span class="logo-sub">TRADING SYSTEM</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshLive()" title="ライブデータ更新">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+      </button>
+      <div class="status-bar">
+        <span class="status-dot"></span>
+        <span id="clock" class="status-clock"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── お知らせ ── -->
+  <section class="section">
+    <div class="section-label">
+      NOTICES
+      <span class="notice-unread-badge" id="notice-badge">2</span>
+    </div>
+    <div class="notice-panel" id="notice-panel">
+      <div class="notice-tabs">
+        <button class="notice-tab notice-tab--active" data-ntab="global" onclick="switchNoticeTab('global')">全体 <span class="ntab-count" id="ntab-global-count">1</span></button>
+        <button class="notice-tab" data-ntab="personal" onclick="switchNoticeTab('personal')">個人 <span class="ntab-count" id="ntab-personal-count">1</span></button>
+      </div>
+      <div class="notice-list" id="notice-global">
+        <div class="notice-item notice-item--unread">
+          <span class="notice-dot"></span>
+          <div class="notice-body">
+            <span class="notice-msg">v0.3 シミュレーター機能（期待値計算・目標達成・オプティマルF）を追加しました</span>
+            <span class="notice-time">2026-05-07</span>
+          </div>
+        </div>
+        <div class="notice-item">
+          <span class="notice-dot notice-dot--read"></span>
+          <div class="notice-body">
+            <span class="notice-msg">v0.2 中銀カレンダー・COTレポートモジュールを追加しました</span>
+            <span class="notice-time">2026-04-30</span>
+          </div>
+        </div>
+      </div>
+      <div class="notice-list notice-list--hidden" id="notice-personal">
+        <div class="notice-item notice-item--unread">
+          <span class="notice-dot"></span>
+          <div class="notice-body">
+            <span class="notice-msg">あなたの定義申請が承認されました。マーケットプレイスへの掲載準備が整いました。</span>
+            <span class="notice-time">2026-05-06</span>
+          </div>
+        </div>
+        <div class="notice-item">
+          <span class="notice-dot notice-dot--read"></span>
+          <div class="notice-body">
+            <span class="notice-msg">ようこそ S++ へ。各モジュールの説明はヘルプページをご確認ください。</span>
+            <span class="notice-time">2026-04-01</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quick Launch ── -->
+  <section class="section">
+    <div class="section-label">QUICK LAUNCH</div>
+    <div class="launch-grid">
+
+      <button class="launch-btn" onclick="openFxCalc()">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3"/>
+          <path d="M9 15l8-8M13 7h4v4"/>
+        </svg>
+        <span class="btn-label">FXロット計算</span>
+        <span class="btn-tag">TOOL</span>
+      </button>
+
+      <button class="launch-btn" onclick="openIndicators()">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 3v18h18"/>
+          <path d="M7 16l4-4 4 4 5-5"/>
+        </svg>
+        <span class="btn-label">指標確認</span>
+        <span class="btn-tag btn-tag--live">LIVE</span>
+      </button>
+
+      <button class="launch-btn launch-btn--tb" onclick="openChat()">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l1.8 7.7L22 12l-8.2 2.3L12 22l-1.8-7.7L2 12l8.2-2.3z"/>
+        </svg>
+        <span class="btn-label">ナレッジチャット</span>
+        <span class="btn-tag btn-tag--tb">DEMO</span>
+      </button>
+
+    </div>
+  </section>
+
+  <!-- ── Live Modules ── -->
+  <section class="section">
+    <div class="section-label">LIVE MODULES</div>
+    <div class="live-grid">
+
+      <div class="module-card">
+        <div class="module-header">
+          <span class="module-title">通貨強弱メーター</span>
+          <span class="module-badge badge--live">LIVE</span>
+        </div>
+        <div class="module-body" id="cs-bars">
+          <div class="loading-row"><span class="loading-dot"></span>取得中...</div>
+        </div>
+        <div class="module-footer" id="cs-updated">—</div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-header">
+          <span class="module-title">スプレッド一覧</span>
+          <span class="module-badge badge--ind">IND</span>
+        </div>
+        <div class="module-body module-body--table">
+          <table class="spread-table">
+            <thead><tr><th>ペア</th><th>レート</th><th>スプレッド</th></tr></thead>
+            <tbody id="spread-tbody">
+              <tr><td colspan="3" class="loading-row"><span class="loading-dot"></span>取得中...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="module-footer">スプレッドは参考値（主要 ECN 水準）</div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-header">
+          <span class="module-title">中銀カレンダー</span>
+          <span class="module-badge badge--sched">SCHED</span>
+        </div>
+        <div class="module-body" id="cb-list">
+          <div class="loading-row"><span class="loading-dot"></span>読み込み中...</div>
+        </div>
+        <div class="module-footer">※日程は推定。要公式確認</div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-header">
+          <span class="module-title">COTレポート</span>
+          <span class="module-badge badge--link">LINK</span>
+        </div>
+        <div class="module-body cot-body">
+          <p class="cot-desc">大口投機筋・商業筋のポジション動向を確認できる外部リソース。</p>
+          <div class="cot-links">
+            <a class="cot-link" href="https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm" target="_blank">
+              <span>CFTC オフィシャル</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+            </a>
+            <a class="cot-link" href="https://www.oanda.com/forex-trading/analysis/commitments-of-traders" target="_blank">
+              <span>OANDA COT 分析</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+            </a>
+            <a class="cot-link" href="https://www.barchart.com/forex/commitment-of-traders" target="_blank">
+              <span>Barchart COT</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+            </a>
+            <a class="cot-link" href="https://cotpricecharts.com/" target="_blank">
+              <span>COT Price Charts</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="module-footer">毎週火曜データ → 金曜公開（CFTC）</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Modules ── -->
+  <section class="section">
+    <div class="section-label">MODULES</div>
+    <div class="wip-grid">
+
+      <div class="wip-tile" onclick="openChat()">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">ナレッジチャット</span>
+          <span class="wip-desc">AI アシスタント</span>
+        </div>
+        <span class="wip-badge badge--demo">DEMO</span>
+      </div>
+
+      <div class="wip-tile" onclick="openWip('setup-eval')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">セットアップ評価</span>
+          <span class="wip-desc">A++/A/B/C 判定</span>
+        </div>
+        <span class="wip-badge badge--wip">WIP</span>
+      </div>
+
+      <div class="wip-tile" onclick="openWip('journal')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">トレードジャーナル</span>
+          <span class="wip-desc">取引記録・振り返り</span>
+        </div>
+        <span class="wip-badge badge--wip">WIP</span>
+      </div>
+
+      <div class="wip-tile" onclick="openWip('quiz')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">クイズ</span>
+          <span class="wip-desc">習熟度テスト</span>
+        </div>
+        <span class="wip-badge badge--wip">WIP</span>
+      </div>
+
+      <div class="wip-tile" onclick="openWip('score')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">スコアシステム</span>
+          <span class="wip-desc">成績・成長トラッキング</span>
+        </div>
+        <span class="wip-badge badge--wip">WIP</span>
+      </div>
+
+      <div class="wip-tile" onclick="openWip('casestudy')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">ケーススタディ</span>
+          <span class="wip-desc">過去チャート分析演習</span>
+        </div>
+        <span class="wip-badge badge--wip">WIP</span>
+      </div>
+
+      <div class="wip-tile" onclick="openWip('order')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">発注システム</span>
+          <span class="wip-desc">ブローカー連携・注文</span>
+        </div>
+        <span class="wip-badge badge--wip">WIP</span>
+      </div>
+
+      <div class="wip-tile" onclick="openWip('standby')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">スタンバイ一覧</span>
+          <span class="wip-desc">エントリー候補管理</span>
+        </div>
+        <span class="wip-badge badge--wip">WIP</span>
+      </div>
+
+      <!-- ── シミュレーター 3種 ── -->
+      <div class="wip-tile wip-tile--sim" onclick="openSimModal('ev')">
+        <div class="wip-icon wip-icon--sim">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">期待値計算</span>
+          <span class="wip-desc">勝率・RR・資金から期待値算出</span>
+        </div>
+        <span class="wip-badge badge--sim">SIM</span>
+      </div>
+
+      <div class="wip-tile wip-tile--sim" onclick="openSimModal('goal')">
+        <div class="wip-icon wip-icon--sim">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">目標達成シミュレーター</span>
+          <span class="wip-desc">目標資金・期間・破綻確率を試算</span>
+        </div>
+        <span class="wip-badge badge--sim">SIM</span>
+      </div>
+
+      <div class="wip-tile wip-tile--sim" onclick="openSimModal('kelly')">
+        <div class="wip-icon wip-icon--sim">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z"/>
+            <path d="M12 8v4l3 3"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">オプティマルF計算</span>
+          <span class="wip-desc">ケリー基準による最適ロットサイズ</span>
+        </div>
+        <span class="wip-badge badge--sim">SIM</span>
+      </div>
+
+      <!-- ── 相場分析 (BETA準備中) ── -->
+      <div class="wip-tile" onclick="openComingSoon('相場分析システムは現在開発中です。公開をお楽しみに。')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">相場分析</span>
+          <span class="wip-desc">チャート箇所を指定 → wiki理論に基づく分析結果・プロセスを出力</span>
+        </div>
+        <span class="wip-badge badge--beta">BETA準備中</span>
+      </div>
+
+      <!-- ── バックテスト (COMING SOON) ── -->
+      <div class="wip-tile" onclick="openComingSoon('バックテストシステムは現在開発中です。公開をお楽しみに。')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">バックテスト</span>
+          <span class="wip-desc">戦略定義を入力してAIが検証。定義リストから選択して実行</span>
+        </div>
+        <span class="wip-badge badge--soon">COMING SOON</span>
+      </div>
+
+      <!-- ── マーケットプレイス (COMING SOON) ── -->
+      <div class="wip-tile" onclick="openComingSoon('マーケットプレイスは現在開発中です。公開をお楽しみに。')">
+        <div class="wip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">マーケットプレイス</span>
+          <span class="wip-desc">検証済み戦略・EAを売買。先行者が定義の販売権を持つ</span>
+        </div>
+        <span class="wip-badge badge--soon">COMING SOON</span>
+      </div>
+
+      <!-- ── AIトレードパートナー (COMING SOON / special) ── -->
+      <div class="wip-tile wip-tile--ai" onclick="openComingSoon('AIトレードパートナーは現在開発中です。公開をお楽しみに。')">
+        <div class="ai-glow-ring"></div>
+        <div class="wip-icon wip-icon--ai">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l1.8 7.7L22 12l-8.2 2.3L12 22l-1.8-7.7L2 12l8.2-2.3z"/>
+          </svg>
+        </div>
+        <div class="wip-info">
+          <span class="wip-title">AIトレードパートナー</span>
+          <span class="wip-desc">リアルタイム相場をwiki理論で分析し、条件成立時に通知。S++の究極形態。</span>
+        </div>
+        <span class="wip-badge badge--ai">COMING SOON</span>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">S++ v0.3</footer>
+
+</div>
+
+<!-- ── Tinkerbell Orb ── -->
+<div class="tb-orb" onclick="openChat()" role="button" aria-label="Tinkerbell に話しかける">
+  <div class="tb-tooltip">Tinkerbell に話しかける</div>
+  <div class="tb-orb-outer">
+    <div class="tb-glow"></div>
+    <div class="tb-ring"></div>
+    <div class="tb-core">
+      <svg class="tb-sparkle" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2l1.8 7.7L22 12l-8.2 2.3L12 22l-1.8-7.7L2 12l8.2-2.3z"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ── Coming Soon Modal ── -->
+<div class="modal-overlay" id="modal-coming-soon" onclick="closeModal('modal-coming-soon')">
+  <div class="modal-box modal-box--sm" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">開発中</span>
+      <button class="modal-close" onclick="closeModal('modal-coming-soon')">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;padding:32px 24px;">
+      <div style="font-size:2rem;margin-bottom:12px;">🔧</div>
+      <p id="coming-soon-msg" style="color:var(--text-2);font-size:.82rem;line-height:1.7;"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 期待値計算モーダル ── -->
+<div class="modal-overlay" id="modal-ev" onclick="closeModal('modal-ev')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">期待値計算シミュレーター</span>
+      <button class="modal-close" onclick="closeModal('modal-ev')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sim-grid">
+        <div class="sim-inputs">
+          <div class="sim-field">
+            <label class="sim-label">勝率 <span class="sim-unit">%</span></label>
+            <input class="sim-input" id="ev-wr" type="number" value="50" min="1" max="99" step="1">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">リスクリワード <span class="sim-unit">1 : ◯</span></label>
+            <input class="sim-input" id="ev-rr" type="number" value="2" min="0.1" step="0.1">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">資金 <span class="sim-unit">円</span></label>
+            <input class="sim-input" id="ev-capital" type="number" value="1000000" min="1000" step="1000">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">許容損失率 <span class="sim-unit">%</span></label>
+            <input class="sim-input" id="ev-risk" type="number" value="1" min="0.1" max="50" step="0.1">
+          </div>
+          <button class="sim-run-btn" onclick="calcEV()">計算する</button>
+        </div>
+        <div class="sim-results" id="ev-results">
+          <div class="sim-result-placeholder">← 入力して計算してください</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 目標達成シミュレーターモーダル ── -->
+<div class="modal-overlay" id="modal-goal" onclick="closeModal('modal-goal')">
+  <div class="modal-box modal-box--wide" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">目標達成シミュレーター</span>
+      <button class="modal-close" onclick="closeModal('modal-goal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sim-grid">
+        <div class="sim-inputs">
+          <div class="sim-field">
+            <label class="sim-label">初期資金 <span class="sim-unit">円</span></label>
+            <input class="sim-input" id="goal-capital" type="number" value="1000000" min="1000" step="10000">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">目標資金 <span class="sim-unit">円</span></label>
+            <input class="sim-input" id="goal-target" type="number" value="2000000" min="1000" step="10000">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">勝率 <span class="sim-unit">%</span></label>
+            <input class="sim-input" id="goal-wr" type="number" value="50" min="1" max="99" step="1">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">リスクリワード <span class="sim-unit">1 : ◯</span></label>
+            <input class="sim-input" id="goal-rr" type="number" value="2" min="0.1" step="0.1">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">許容損失率 <span class="sim-unit">%</span></label>
+            <input class="sim-input" id="goal-risk" type="number" value="1" min="0.1" max="50" step="0.1">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">取引頻度 <span class="sim-unit">週 ◯ 回</span></label>
+            <input class="sim-input" id="goal-freq" type="number" value="5" min="1" max="50" step="1">
+          </div>
+          <button class="sim-run-btn" onclick="calcGoal()">シミュレーション実行</button>
+        </div>
+        <div class="sim-results" id="goal-results">
+          <div class="sim-result-placeholder">← 入力してシミュレーションを実行してください</div>
+        </div>
+      </div>
+      <div class="sim-chart-wrap" id="goal-chart-wrap" style="display:none">
+        <canvas id="goal-chart" height="140"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── オプティマルFモーダル ── -->
+<div class="modal-overlay" id="modal-kelly" onclick="closeModal('modal-kelly')">
+  <div class="modal-box modal-box--wide" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">オプティマルF計算</span>
+      <button class="modal-close" onclick="closeModal('modal-kelly')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="sim-grid">
+        <div class="sim-inputs">
+          <div class="sim-field">
+            <label class="sim-label">勝率 <span class="sim-unit">%</span></label>
+            <input class="sim-input" id="kelly-wr" type="number" value="50" min="1" max="99" step="1">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">リスクリワード <span class="sim-unit">1 : ◯</span></label>
+            <input class="sim-input" id="kelly-rr" type="number" value="2" min="0.1" step="0.1">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">資金 <span class="sim-unit">円</span></label>
+            <input class="sim-input" id="kelly-capital" type="number" value="1000000" min="1000" step="10000">
+          </div>
+          <div class="sim-field">
+            <label class="sim-label">現在の許容損失率 <span class="sim-unit">%（比較用）</span></label>
+            <input class="sim-input" id="kelly-current" type="number" value="1" min="0.1" max="50" step="0.1">
+          </div>
+          <button class="sim-run-btn" onclick="calcKelly()">計算する</button>
+        </div>
+        <div class="sim-results" id="kelly-results">
+          <div class="sim-result-placeholder">← 入力して計算してください</div>
+        </div>
+      </div>
+      <div class="sim-chart-wrap" id="kelly-chart-wrap" style="display:none">
+        <canvas id="kelly-chart" height="140"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
