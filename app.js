@@ -25,17 +25,124 @@ function initClock() {
 }
 
 // ── FX Data Cache ────────────────────────────────────────────────
-let _fxCache = null;
+let _fxCache    = null;
+let _fxCacheTs  = 0;
+let _btcCache   = null;
+let _btcCacheTs = 0;
 
+// Primary: @fawazahmed0/currency-api (has fiat + XAU + XAG)
+// Fallback: open.er-api.com (fiat only)
 async function getFXRates(force = false) {
-  if (!force && _fxCache) return _fxCache;
-  const res = await fetch('https://open.er-api.com/v6/latest/USD');
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  _fxCache = await res.json();
+  const now = Date.now();
+  if (!force && _fxCache && now - _fxCacheTs < 55 * 60 * 1000) return _fxCache;
+
+  const PRIMARY  = 'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json';
+  const FALLBACK = 'https://latest.currency-api.pages.dev/v1/currencies/usd.json';
+
+  const tryFetch = async url => {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 8000);
+    try {
+      const res = await fetch(url, { signal: ctrl.signal });
+      if (!res.ok) throw new Error();
+      return await res.json();
+    } finally { clearTimeout(tid); }
+  };
+
+  let raw = null;
+  try       { raw = await tryFetch(PRIMARY);  }
+  catch (_) { raw = await tryFetch(FALLBACK); }
+
+  // Normalise: { usd: { eur: 0.85, ... } }
+  const usdRates = raw.usd;
+  if (!usdRates) throw new Error('FX rates parse error');
+
+  _fxCache   = usdRates;    // already lowercase-keyed
+  _fxCacheTs = now;
   return _fxCache;
 }
 
+async function getBTCRate(force = false) {
+  const now = Date.now();
+  if (!force && _btcCache && now - _btcCacheTs < 5 * 60 * 1000) return _btcCache;
+  try {
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 6000);
+    const res  = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd',
+      { signal: ctrl.signal }
+    );
+    clearTimeout(tid);
+    if (!res.ok) throw new Error();
+    const data  = await res.json();
+    _btcCache   = data.bitcoin.usd;
+    _btcCacheTs = now;
+    return _btcCache;
+  } catch {
+    return _btcCache || null;
+  }
+}
+
+// ── CS History (localStorage) ────────────────────────────────────
+const CS_HIST_KEY = 'spp_cs_hist_v2';  // v2 = two-group format
+
+function csHistLoad() {
+  try { return JSON.parse(localStorage.getItem(CS_HIST_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function csHistSave(fiatScores, altScores) {
+  const h = csHistLoad();
+  const now = Date.now();
+  const entry = { ts: now, fiat: fiatScores, alt: altScores };
+  if (h.length && now - h[h.length - 1].ts < 45 * 60 * 1000) {
+    h[h.length - 1] = entry;
+  } else {
+    h.push(entry);
+  }
+  while (h.length > 25) h.shift();
+  localStorage.setItem(CS_HIST_KEY, JSON.stringify(h));
+}
+
+function csHistAt(hoursAgo) {
+  if (!hoursAgo) return null;
+  const h = csHistLoad();
+  if (!h.length) return null;
+  const target = Date.now() - hoursAgo * 3600000;
+  let best = null, bestDiff = Infinity;
+  for (const e of h) {
+    const d = Math.abs(e.ts - target);
+    if (d < bestDiff) { bestDiff = d; best = e; }
+  }
+  return bestDiff < (hoursAgo * 0.6 + 0.5) * 3600000 ? best : null;
+}
+
 // ── Currency Strength ────────────────────────────────────────────
+let _csCmpHours      = 0;
+let _csLastFiatScores = null;
+let _csLastAltScores  = null;
+let _csLastFiatCurs   = null;
+let _csLastAltCurs    = null;
+
+// Geometric-mean strength index within a group, normalised 0-100
+function geomStrength(ratesMap) {
+  const curs = Object.keys(ratesMap);
+  if (curs.length === 0) return {};
+  const strength = {};
+  for (const base of curs) {
+    let s = 0;
+    for (const q of curs) { if (q !== base) s += Math.log(ratesMap[q] / ratesMap[base]); }
+    strength[base] = Math.exp(s / (curs.length - 1));
+  }
+  const vals = Object.values(strength);
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  const range = mx - mn;
+  const scores = {};
+  // If all equal (range ≈ 0), assign 50 to everyone
+  curs.forEach(c => { scores[c] = range > 1e-10 ? ((strength[c] - mn) / range) * 100 : 50; });
+  return scores;
+}
+
 async function loadCurrencyStrength(force = false) {
   const container = document.getElementById('cs-bars');
   const updEl     = document.getElementById('cs-updated');
@@ -43,45 +150,212 @@ async function loadCurrencyStrength(force = false) {
   container.innerHTML = '<div class="loading-row"><span class="loading-dot"></span>取得中...</div>';
 
   try {
-    const data = await getFXRates(force);
-    const curs = ['USD','EUR','GBP','JPY','AUD','NZD','CAD','CHF'];
-    const rates = { USD: 1 };
-    curs.slice(1).forEach(c => { rates[c] = data.rates[c]; });
+    // Fetch in parallel
+    const [r, btcUsd] = await Promise.all([getFXRates(force), getBTCRate(force)]);
+    // r is lowercase-keyed: { eur: 0.85, gbp: 0.73, xau: 0.000213, ... }
 
-    // Geometric-mean strength index across all cross pairs
-    const strength = {};
-    for (const base of curs) {
-      let logSum = 0;
-      for (const quote of curs) {
-        if (base === quote) continue;
-        logSum += Math.log(rates[quote] / rates[base]);
+    // ── Group 1: Fiat (rates relative to USD = 1) ──
+    const FIAT_KEYS = ['eur','gbp','jpy','aud','nzd','cad','chf'];
+    const fiatRates = { USD: 1 };
+    FIAT_KEYS.forEach(k => { if (r[k]) fiatRates[k.toUpperCase()] = r[k]; });
+
+    // ── Group 2: Alt (XAU, XAG, BTC) — normalised independently ──
+    // Include fiat rates in cross-rate calculation for alt, but normalise alt only
+    const altRatesVsFiat = {};
+    if (r.xau && r.xau > 0) altRatesVsFiat.XAU = r.xau;
+    if (r.xag && r.xag > 0) altRatesVsFiat.XAG = r.xag;
+    if (btcUsd)              altRatesVsFiat.BTC = 1 / btcUsd;
+
+    const fiatScores = geomStrength(fiatRates);
+
+    // Alt strength: geometric mean vs FIAT cross-rates + each other
+    let altScores = {};
+    const altCurs = Object.keys(altRatesVsFiat);
+    if (altCurs.length > 0) {
+      const combinedRates = { ...fiatRates, ...altRatesVsFiat };
+      const combinedCurs  = Object.keys(combinedRates);
+      const rawAltStr = {};
+      for (const base of altCurs) {
+        let s = 0;
+        for (const q of combinedCurs) {
+          if (q !== base) s += Math.log(combinedRates[q] / combinedRates[base]);
+        }
+        rawAltStr[base] = Math.exp(s / (combinedCurs.length - 1));
       }
-      strength[base] = Math.exp(logSum / (curs.length - 1));
+      // Normalise alt within their own group
+      const av = Object.values(rawAltStr);
+      const aMin = Math.min(...av), aMax = Math.max(...av);
+      const aRange = aMax - aMin;
+      altCurs.forEach(c => {
+        altScores[c] = aRange > 1e-10 ? ((rawAltStr[c] - aMin) / aRange) * 100 : 50;
+      });
     }
 
-    const vals = Object.values(strength);
-    const min = Math.min(...vals), max = Math.max(...vals);
-    const norm = c => ((strength[c] - min) / (max - min)) * 100;
+    _csLastFiatScores = fiatScores;
+    _csLastAltScores  = altScores;
+    _csLastFiatCurs   = Object.keys(fiatScores);
+    _csLastAltCurs    = Object.keys(altScores);
+    csHistSave(fiatScores, altScores);
 
-    const sorted = [...curs].sort((a, b) => norm(b) - norm(a));
+    renderCSBars(fiatScores, _csLastFiatCurs, altScores, _csLastAltCurs, _csCmpHours);
 
-    container.innerHTML = sorted.map(c => {
-      const pct = norm(c);
-      const cls = pct >= 62 ? 'bar-strong' : pct >= 38 ? 'bar-mid' : 'bar-weak';
-      return `<div class="cs-row">
-        <span class="cs-cur">${c}</span>
-        <div class="cs-bar-wrap"><div class="cs-bar ${cls}" style="width:${pct.toFixed(1)}%"></div></div>
-        <span class="cs-val">${pct.toFixed(1)}</span>
-      </div>`;
-    }).join('');
-
-    const t = new Date(data.time_last_update_utc);
-    updEl.textContent = `更新: ${t.toLocaleTimeString('ja-JP', { timeZone: 'Asia/Tokyo' })} JST`;
+    // Timestamp from last fetched data
+    updEl.textContent = `更新: ${new Date().toLocaleTimeString('ja-JP', { timeZone: 'Asia/Tokyo' })} JST`;
 
   } catch (e) {
     container.innerHTML = `<div class="module-error">取得失敗 — ${e.message}</div>`;
     updEl.textContent = '—';
   }
+}
+
+function renderCSBars(fiatScores, fiatCurs, altScores, altCurs, cmpHours) {
+  const container = document.getElementById('cs-bars');
+
+  let cmpFiat = null, cmpAlt = null;
+  if (cmpHours > 0) {
+    const h = csHistAt(cmpHours);
+    if (h) { cmpFiat = h.fiat; cmpAlt = h.alt; }
+  }
+
+  const SPECIAL_CLS = { XAU: 'bar-gold', XAG: 'bar-silver', BTC: 'bar-btc' };
+  const stdCls = p => p >= 62 ? 'bar-strong' : p >= 38 ? 'bar-mid' : 'bar-weak';
+
+  const rowHTML = (c, score, cmpGroup) => {
+    const cls = SPECIAL_CLS[c] ?? stdCls(score);
+    let delta = '';
+    if (cmpGroup?.[c] !== undefined) {
+      const d    = score - cmpGroup[c];
+      const icon = d > 0.3 ? '▲' : d < -0.3 ? '▼' : '–';
+      const dcls = d > 0.3 ? 'up' : d < -0.3 ? 'dn' : 'flat';
+      delta = `<span class="cs-delta cs-delta--${dcls}">${icon}${Math.abs(d).toFixed(1)}</span>`;
+    }
+    return `<div class="cs-row">
+      <span class="cs-cur">${c}</span>
+      <div class="cs-bar-wrap"><div class="cs-bar ${cls}" style="width:${score.toFixed(1)}%"></div></div>
+      <span class="cs-val">${score.toFixed(1)}</span>${delta}
+    </div>`;
+  };
+
+  const sortedFiat = [...fiatCurs].sort((a, b) => fiatScores[b] - fiatScores[a]);
+  let html = sortedFiat.map(c => rowHTML(c, fiatScores[c], cmpFiat)).join('');
+
+  if (altCurs.length > 0) {
+    const sortedAlt = [...altCurs].sort((a, b) => altScores[b] - altScores[a]);
+    html += `<div class="cs-group-sep"><span>COMMODITIES &amp; CRYPTO</span></div>`;
+    html += sortedAlt.map(c => rowHTML(c, altScores[c], cmpAlt)).join('');
+  }
+
+  container.innerHTML = html;
+}
+
+function setCsCompare(hours) {
+  _csCmpHours = hours;
+  document.querySelectorAll('.cs-cmp-btn').forEach(b =>
+    b.classList.toggle('cs-cmp-btn--active', +b.dataset.h === hours)
+  );
+  if (_csLastFiatScores) {
+    renderCSBars(_csLastFiatScores, _csLastFiatCurs, _csLastAltScores, _csLastAltCurs, hours);
+  }
+}
+
+function setCsView(view) {
+  document.querySelectorAll('.cs-view-btn').forEach(b =>
+    b.classList.toggle('cs-view-btn--active', b.dataset.view === view)
+  );
+  const barsEl   = document.getElementById('cs-bars');
+  const cmpBar   = document.getElementById('cs-compare-bar');
+  const chartEl  = document.getElementById('cs-chart-panel');
+
+  if (view === 'bars') {
+    barsEl.style.display  = '';
+    cmpBar.style.display  = '';
+    chartEl.style.display = 'none';
+  } else {
+    barsEl.style.display  = 'none';
+    cmpBar.style.display  = 'none';
+    chartEl.style.display = '';
+    renderCSHistoryChart();
+  }
+}
+
+function renderCSHistoryChart() {
+  const panel = document.getElementById('cs-chart-panel');
+  const hist  = csHistLoad();
+
+  if (hist.length < 2) {
+    panel.innerHTML = '<div class="cs-chart-empty">データ蓄積中... (最低2件必要)</div>';
+    return;
+  }
+
+  if (!panel.querySelector('canvas')) {
+    panel.innerHTML = '<canvas id="cs-history-chart"></canvas>';
+  }
+  const canvas = document.getElementById('cs-history-chart');
+  const W = panel.offsetWidth || 460;
+  const H = 180;
+  canvas.width  = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+
+  const COLORS = {
+    USD:'#00c8ff', EUR:'#4d8fff', GBP:'#aa66ff',
+    JPY:'#ff6644', AUD:'#44cc88', NZD:'#44ccaa',
+    CAD:'#ff9900', CHF:'#aaaaaa',
+    XAU:'#ffd700', XAG:'#cccccc', BTC:'#f7931a',
+  };
+
+  const pad = { t:10, r:10, b:26, l:32 };
+  const pw  = W - pad.l - pad.r;
+  const ph  = H - pad.t - pad.b;
+  const n   = hist.length;
+  const tx  = i => pad.l + (i / (n - 1)) * pw;
+  const ty  = v => pad.t + ph - (v / 100) * ph;
+
+  // Grid lines
+  [0, 25, 50, 75, 100].forEach(pct => {
+    ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, ty(pct)); ctx.lineTo(W - pad.r, ty(pct)); ctx.stroke();
+    ctx.fillStyle = 'rgba(106,128,153,.55)'; ctx.font = '8px monospace'; ctx.textAlign = 'right';
+    ctx.fillText(pct, pad.l - 3, ty(pct) + 3);
+  });
+
+  // Time labels
+  ctx.fillStyle = 'rgba(106,128,153,.55)'; ctx.font = '8px monospace'; ctx.textAlign = 'center';
+  [0, Math.floor((n - 1) / 2), n - 1].forEach(i => {
+    const d = new Date(hist[i].ts);
+    ctx.fillText(`${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`, tx(i), H - 5);
+  });
+
+  // Draw fiat lines
+  const firstFiat = Object.keys(hist[hist.length - 1].fiat || {});
+  firstFiat.filter(c => COLORS[c]).forEach(c => {
+    ctx.strokeStyle = COLORS[c]; ctx.lineWidth = 1.2; ctx.globalAlpha = 0.75;
+    ctx.beginPath();
+    hist.forEach((e, i) => {
+      const v = (e.fiat || {})[c];
+      if (v === undefined) return;
+      i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v));
+    });
+    ctx.stroke();
+  });
+
+  // Draw alt lines (dashed, thicker)
+  const firstAlt = Object.keys(hist[hist.length - 1].alt || {});
+  firstAlt.filter(c => COLORS[c]).forEach(c => {
+    ctx.strokeStyle = COLORS[c]; ctx.lineWidth = 1.8;
+    ctx.setLineDash([4, 3]); ctx.globalAlpha = 0.65;
+    ctx.beginPath();
+    hist.forEach((e, i) => {
+      const v = (e.alt || {})[c];
+      if (v === undefined) return;
+      i === 0 ? ctx.moveTo(tx(i), ty(v)) : ctx.lineTo(tx(i), ty(v));
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  ctx.globalAlpha = 1;
 }
 
 // ── Spreads ──────────────────────────────────────────────────────
@@ -96,19 +370,19 @@ async function loadSpreads(force = false) {
   tbody.innerHTML = '<tr><td colspan="3" class="loading-row"><span class="loading-dot"></span>取得中...</td></tr>';
 
   try {
-    const data = await getFXRates(force);
-    const r = data.rates;
+    const r = await getFXRates(force);
+    // r is lowercase-keyed: { eur, gbp, jpy, ... }
 
     const pairs = {
-      'EUR/USD': 1 / r.EUR,
-      'USD/JPY': r.JPY,
-      'GBP/USD': 1 / r.GBP,
-      'USD/CHF': r.CHF,
-      'AUD/USD': 1 / r.AUD,
-      'USD/CAD': r.CAD,
-      'NZD/USD': 1 / r.NZD,
-      'EUR/JPY': r.JPY / r.EUR,
-      'GBP/JPY': r.JPY / r.GBP,
+      'EUR/USD': 1 / r.eur,
+      'USD/JPY': r.jpy,
+      'GBP/USD': 1 / r.gbp,
+      'USD/CHF': r.chf,
+      'AUD/USD': 1 / r.aud,
+      'USD/CAD': r.cad,
+      'NZD/USD': 1 / r.nzd,
+      'EUR/JPY': r.jpy / r.eur,
+      'GBP/JPY': r.jpy / r.gbp,
     };
 
     tbody.innerHTML = Object.entries(pairs).map(([pair, rate]) => {
@@ -175,7 +449,8 @@ function renderCBCalendar() {
 function refreshLive() {
   const btn = document.getElementById('refresh-btn');
   btn.classList.add('spinning');
-  _fxCache = null;
+  _fxCache  = null;
+  _btcCache = null;
 
   Promise.all([
     loadCurrencyStrength(true),
@@ -577,10 +852,67 @@ function renderMultiLineChart(canvasId, labels, series) {
   });
 }
 
+// ── Loader ───────────────────────────────────────────────────────
+const LOADER_VISITED_KEY = 'spp_visited';
+const LOADER_STEPS = [
+  { text: 'INITIALIZING S++ SYSTEM...',   pct: 15 },
+  { text: 'LOADING MODULES...',            pct: 35 },
+  { text: 'CONNECTING KNOWLEDGE CORE...', pct: 58 },
+  { text: 'CALIBRATING MARKET DATA...',   pct: 82 },
+  { text: 'SYSTEM READY.',                pct: 100 },
+];
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function runLoader() {
+  const overlay   = document.getElementById('spp-loader');
+  const container = document.getElementById('main-container');
+  const linesEl   = document.getElementById('spp-loader-lines');
+  const barEl     = document.getElementById('spp-loader-bar');
+  const pctEl     = document.getElementById('spp-loader-pct');
+
+  const isFirst = !localStorage.getItem(LOADER_VISITED_KEY);
+  const stepMs  = isFirst ? 460 : 120;
+  const endMs   = isFirst ? 420 : 100;
+
+  if (isFirst) localStorage.setItem(LOADER_VISITED_KEY, '1');
+
+  for (const step of LOADER_STEPS) {
+    const line = document.createElement('div');
+    line.className   = 'spp-loader-line';
+    line.textContent = '> ' + step.text;
+    linesEl.appendChild(line);
+    await sleep(16);
+    line.classList.add('visible');
+
+    barEl.style.width   = step.pct + '%';
+    if (pctEl) pctEl.textContent = step.pct + '%';
+
+    await sleep(stepMs);
+  }
+
+  await sleep(endMs);
+
+  overlay.classList.add('fading');
+  container.classList.add('loaded');
+
+  await sleep(580);
+  overlay.style.display = 'none';
+}
+
 // ── Init ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  runLoader();
   initClock();
   loadCurrencyStrength();
   loadSpreads();
   renderCBCalendar();
+
+  // Hourly auto-refresh
+  setInterval(() => {
+    _fxCache  = null;
+    _btcCache = null;
+    loadCurrencyStrength(true);
+    loadSpreads(true);
+  }, 60 * 60 * 1000);
 });

@@ -279,9 +279,84 @@ body::after {
 .module-error { color: var(--danger); font-size: .75rem; padding: 6px 0; }
 
 /* ──────────────────────────────── Currency Strength */
+.cs-header-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cs-view-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: border-color .12s, color .12s, background .12s;
+}
+.cs-view-btn:hover { border-color: var(--accent); color: var(--accent); }
+.cs-view-btn--active {
+  background: rgba(0,200,255,.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cs-compare-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 16px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(0,0,0,.08);
+  flex-wrap: wrap;
+}
+.cs-cmp-label {
+  font-size: .58rem;
+  letter-spacing: .1em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+.cs-cmp-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-2);
+  font-family: inherit;
+  font-size: .6rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: border-color .12s, color .12s, background .12s;
+  white-space: nowrap;
+}
+.cs-cmp-btn:hover { border-color: rgba(0,200,255,.4); color: var(--text-1); }
+.cs-cmp-btn--active {
+  background: rgba(0,200,255,.1);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cs-chart-panel {
+  padding: 10px 14px 6px;
+  background: rgba(0,0,0,.08);
+}
+.cs-chart-panel canvas { display: block; width: 100%; }
+.cs-chart-empty {
+  color: var(--text-3);
+  font-size: .7rem;
+  padding: 24px;
+  text-align: center;
+}
+
 .cs-row {
   display: grid;
-  grid-template-columns: 38px 1fr 42px;
+  grid-template-columns: 38px 1fr 42px auto;
   align-items: center;
   gap: 8px;
   padding: 4px 0;
@@ -303,13 +378,35 @@ body::after {
   border-radius: 4px;
   transition: width .6s cubic-bezier(.4,0,.2,1);
 }
-.bar-strong { background: linear-gradient(90deg, #00c8ff, #00eecc); }
-.bar-mid    { background: linear-gradient(90deg, #006888, #008877); }
-.bar-weak   { background: linear-gradient(90deg, #1e3a4a, #1e3a3a); }
+.bar-strong  { background: linear-gradient(90deg, #00c8ff, #00eecc); }
+.bar-mid     { background: linear-gradient(90deg, #006888, #008877); }
+.bar-weak    { background: linear-gradient(90deg, #1e3a4a, #1e3a3a); }
+.bar-gold    { background: linear-gradient(90deg, #d4a017, #ffd700); }
+.bar-silver  { background: linear-gradient(90deg, #888, #ccc); }
+.bar-btc     { background: linear-gradient(90deg, #c57216, #f7931a); }
 .cs-val {
   font-size: .68rem;
   color: var(--text-2);
   text-align: right;
+}
+.cs-delta {
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  min-width: 36px;
+  text-align: right;
+}
+.cs-delta--up   { color: var(--accent2); }
+.cs-delta--dn   { color: var(--danger); }
+.cs-delta--flat { color: var(--text-3); }
+.cs-group-sep {
+  font-size: .58rem;
+  letter-spacing: .12em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  padding: 8px 0 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
 }
 
 /* ──────────────────────────────── Spread Table */
@@ -941,6 +1038,119 @@ body::after {
   padding: 16px;
 }
 
+/* ──────────────────────────────── Loader */
+.spp-loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  transition: opacity .55s ease;
+}
+.spp-loader.fading { opacity: 0; pointer-events: none; }
+
+.spp-loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: min(460px, 90vw);
+}
+
+.spp-loader-logo {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: -2px;
+  color: var(--text-1);
+  line-height: 1;
+  text-shadow: 0 0 40px rgba(0,200,255,.25);
+}
+.spp-loader-logo-acc {
+  color: var(--accent);
+  text-shadow: 0 0 32px rgba(0,200,255,.9);
+}
+.spp-loader-subtitle {
+  font-size: .62rem;
+  letter-spacing: .32em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-top: 4px;
+  margin-bottom: 32px;
+}
+
+.spp-loader-lines {
+  width: 100%;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+.spp-loader-line {
+  font-size: .72rem;
+  font-family: 'SF Mono','Fira Code','Consolas',monospace;
+  letter-spacing: .04em;
+  color: var(--text-3);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity .25s ease, transform .25s ease, color .25s ease;
+}
+.spp-loader-line.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.spp-loader-line:last-child {
+  color: var(--accent2);
+  font-weight: 700;
+}
+
+.spp-loader-progress {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.spp-loader-track {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,.06);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.spp-loader-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  transition: width .4s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+.spp-loader-bar::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.5));
+}
+.spp-loader-pct {
+  font-size: .62rem;
+  color: var(--text-3);
+  letter-spacing: .06em;
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Main container fade-in */
+#main-container {
+  opacity: 0;
+  transition: opacity .5s ease .1s;
+}
+#main-container.loaded { opacity: 1; }
+
 /* ──────────────────────────────── Responsive */
 @media (max-width: 860px) {
   .live-grid { grid-template-columns: 1fr; }
@@ -953,4 +1163,6 @@ body::after {
   .logo-text   { font-size: 2rem; }
   .header-left { gap: 10px; }
   .back-link span { display: none; }
+  .cs-compare-bar { gap: 4px; }
+  .cs-cmp-btn { font-size: .56rem; padding: 2px 5px; }
 }

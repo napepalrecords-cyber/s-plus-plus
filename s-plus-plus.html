@@ -7,7 +7,24 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="container">
+
+<!-- ── Loader ── -->
+<div id="spp-loader" class="spp-loader">
+  <div class="spp-loader-inner">
+    <div class="spp-loader-logo">S<span class="spp-loader-logo-acc">++</span></div>
+    <div class="spp-loader-subtitle">TRADING SYSTEM</div>
+    <div class="spp-loader-lines" id="spp-loader-lines"></div>
+    <div class="spp-loader-progress">
+      <div class="spp-loader-track">
+        <div class="spp-loader-bar" id="spp-loader-bar"></div>
+        <div class="spp-loader-bar-glow" id="spp-loader-bar-glow"></div>
+      </div>
+      <span class="spp-loader-pct" id="spp-loader-pct">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" id="main-container">
 
   <!-- ── Header ── -->
   <header class="header">
@@ -126,10 +143,26 @@
       <div class="module-card">
         <div class="module-header">
           <span class="module-title">通貨強弱メーター</span>
-          <span class="module-badge badge--live">LIVE</span>
+          <div class="cs-header-right">
+            <button class="cs-view-btn cs-view-btn--active" data-view="bars" onclick="setCsView('bars')">バー</button>
+            <button class="cs-view-btn" data-view="chart" onclick="setCsView('chart')">24h推移</button>
+            <span class="module-badge badge--live">LIVE</span>
+          </div>
+        </div>
+        <div class="cs-compare-bar" id="cs-compare-bar">
+          <span class="cs-cmp-label">比較</span>
+          <button class="cs-cmp-btn cs-cmp-btn--active" data-h="0"  onclick="setCsCompare(0)">現在</button>
+          <button class="cs-cmp-btn" data-h="1"  onclick="setCsCompare(1)">1h前</button>
+          <button class="cs-cmp-btn" data-h="3"  onclick="setCsCompare(3)">3h前</button>
+          <button class="cs-cmp-btn" data-h="6"  onclick="setCsCompare(6)">6h前</button>
+          <button class="cs-cmp-btn" data-h="12" onclick="setCsCompare(12)">12h前</button>
+          <button class="cs-cmp-btn" data-h="24" onclick="setCsCompare(24)">24h前</button>
         </div>
         <div class="module-body" id="cs-bars">
           <div class="loading-row"><span class="loading-dot"></span>取得中...</div>
+        </div>
+        <div class="cs-chart-panel" id="cs-chart-panel" style="display:none">
+          <canvas id="cs-history-chart"></canvas>
         </div>
         <div class="module-footer" id="cs-updated">—</div>
       </div>
