@@ -1,0 +1,225 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "last_updated": "2026-05-10",
+    "description": "S++全コンテンツ・機能の状態管理ファイル。Claudeが参照しやすい形式で管理。"
+  },
+
+  "brokers/xm-trading/": {
+    "type": "content_hub",
+    "company": "XM Trading",
+    "category": "broker",
+    "status": "implemented",
+    "verification_status": "verification_running",
+    "support_logs": ["SL-001", "SL-002", "SL-003", "SL-004"],
+    "cta_status": "official_url_temp",
+    "affiliate_status": "pending_application",
+    "schema_status": "article_faqpage",
+    "production_ready": false,
+    "production_blockers": ["affiliate_link_pending", "support_log_urls_404"],
+    "last_updated": "2026-05-10",
+    "notes": "タブUI実装済み。アフィリリンク申請後に本番可。"
+  },
+
+  "brokers/xm-trading/review": {
+    "type": "content_review",
+    "company": "XM Trading",
+    "category": "broker",
+    "status": "implemented",
+    "verification_status": "verification_running",
+    "support_logs": ["SL-001", "SL-002", "SL-003", "SL-004"],
+    "cta_status": "official_url_temp",
+    "affiliate_status": "pending_application",
+    "schema_status": "article_faqpage",
+    "k_comment_status": "placeholder_pending_verification",
+    "production_ready": false,
+    "production_blockers": ["affiliate_link_pending"],
+    "last_updated": "2026-05-10"
+  },
+
+  "brokers/xm-trading/withdrawal": {
+    "type": "content_withdrawal",
+    "company": "XM Trading",
+    "category": "broker",
+    "status": "implemented",
+    "verification_status": "verification_running",
+    "support_logs": ["SL-001", "SL-004"],
+    "cta_status": "official_url_temp",
+    "affiliate_status": "pending_application",
+    "schema_status": "article_faqpage",
+    "k_comment_status": "placeholder_pending_verification",
+    "production_ready": false,
+    "production_blockers": ["affiliate_link_pending", "sl004_data_pending"],
+    "last_updated": "2026-05-10",
+    "notes": "「扣除」→「控除」修正済み。アフィリリンクはDEV ONLYコメント化済み。"
+  },
+
+  "brokers/xm-trading/safety": {
+    "type": "content_safety",
+    "company": "XM Trading",
+    "category": "broker",
+    "status": "implemented",
+    "verification_status": "verification_running",
+    "support_logs": ["SL-003", "SL-004"],
+    "cta_status": "official_url_temp",
+    "affiliate_status": "pending_application",
+    "schema_status": "article_faqpage",
+    "production_ready": false,
+    "production_blockers": ["affiliate_link_pending"],
+    "last_updated": "2026-05-10"
+  },
+
+  "brokers/xm-trading/k-review": {
+    "type": "content_k_review",
+    "company": "XM Trading",
+    "category": "broker",
+    "status": "implemented",
+    "verification_status": "verification_running",
+    "support_logs": ["SL-001", "SL-002", "SL-003", "SL-004"],
+    "cta_status": "official_url_temp",
+    "affiliate_status": "pending_application",
+    "schema_status": "article",
+    "k_comment_status": "provisional_judgment_documented",
+    "production_ready": false,
+    "production_blockers": ["affiliate_link_pending", "k_real_experience_pending"],
+    "last_updated": "2026-05-10",
+    "notes": "暫定判断と検証ログのページとして実装。実測後にk_comment_statusをupdated_with_real_dataに変更。"
+  },
+
+  "brokers/exness/": {
+    "type": "content_hub",
+    "company": "Exness",
+    "category": "broker",
+    "status": "md_complete",
+    "verification_status": "verification_running",
+    "support_logs": [],
+    "cta_status": "not_set",
+    "affiliate_status": "pending_application",
+    "schema_status": "designed",
+    "production_ready": false,
+    "production_blockers": ["html_not_implemented", "affiliate_link_pending"],
+    "last_updated": "2026-05-10"
+  },
+
+  "brokers/threetrader/": {
+    "type": "content_hub",
+    "company": "ThreeTrader",
+    "category": "broker",
+    "status": "md_complete",
+    "verification_status": "measured",
+    "support_logs": ["SL-005", "SL-006", "SL-007"],
+    "cta_status": "not_set",
+    "affiliate_status": "pending_application",
+    "schema_status": "designed",
+    "production_ready": false,
+    "production_blockers": ["html_not_implemented", "affiliate_link_pending"],
+    "last_updated": "2026-05-10",
+    "notes": "withdrawal・safetyにSL-005〜007実測データ反映済み。"
+  },
+
+  "brokers/myfxmarkets/": {
+    "type": "content_hub",
+    "company": "MyFXMarkets",
+    "category": "broker",
+    "status": "md_complete",
+    "verification_status": "verification_running",
+    "support_logs": [],
+    "cta_status": "not_set",
+    "affiliate_status": "pending_application",
+    "schema_status": "designed",
+    "production_ready": false,
+    "production_blockers": ["html_not_implemented", "affiliate_link_pending"],
+    "last_updated": "2026-05-10",
+    "notes": "2021年騒動の記述あり。公開前に表現リスクを再確認すること。"
+  },
+
+  "prop-firms/fintokei/": {
+    "type": "content_hub",
+    "company": "Fintokei",
+    "category": "prop_firm",
+    "status": "md_complete",
+    "verification_status": "real_experience",
+    "support_logs": [],
+    "cta_status": "not_set",
+    "affiliate_status": "pending_application",
+    "schema_status": "designed",
+    "k_real_experience": "クオーツプラン第2フェーズ失格（外付け手数料未計上が原因）",
+    "production_ready": false,
+    "production_blockers": ["html_not_implemented", "affiliate_link_pending"],
+    "last_updated": "2026-05-10"
+  },
+
+  "prop-firms/funded7/": {
+    "type": "content_hub",
+    "company": "Funded7",
+    "category": "prop_firm",
+    "status": "md_complete",
+    "verification_status": "not_experienced",
+    "support_logs": [],
+    "cta_status": "not_set",
+    "affiliate_status": "pending_application",
+    "schema_status": "designed",
+    "production_ready": false,
+    "production_blockers": ["html_not_implemented", "affiliate_link_pending"],
+    "last_updated": "2026-05-10",
+    "notes": "QC計算式は「S++側で理解している簡略イメージ」として記述。公式確認推奨の注釈を入れること。"
+  },
+
+  "prop-firms/the5ers/": {
+    "type": "content_hub",
+    "company": "The5ers",
+    "category": "prop_firm",
+    "status": "md_complete",
+    "verification_status": "real_experience",
+    "support_logs": [],
+    "cta_status": "not_set",
+    "affiliate_status": "pending_application",
+    "schema_status": "designed",
+    "k_real_experience": "日本人限定大会11位入賞・+14.78%・$10,000口座",
+    "production_ready": false,
+    "production_blockers": ["html_not_implemented", "affiliate_link_pending"],
+    "last_updated": "2026-05-10"
+  },
+
+  "support-log/": {
+    "type": "system_page",
+    "status": "design_complete",
+    "entries": {
+      "SL-001": { "broker": "XM Trading", "category": "出金", "status": "確認予定", "production_ready": false },
+      "SL-002": { "broker": "XM Trading", "category": "ボーナス", "status": "確認予定", "production_ready": false },
+      "SL-003": { "broker": "XM Trading", "category": "規約", "status": "確認予定", "production_ready": false },
+      "SL-004": { "broker": "XM Trading", "category": "実口座検証", "status": "入力待ち", "production_ready": false },
+      "SL-005": { "broker": "ThreeTrader", "category": "出金", "status": "実測済み", "production_ready": true },
+      "SL-006": { "broker": "ThreeTrader", "category": "入金", "status": "実測済み", "production_ready": true },
+      "SL-007": { "broker": "ThreeTrader", "category": "安全性", "status": "実測済み", "production_ready": true }
+    },
+    "production_ready": false,
+    "production_blockers": ["list_page_not_implemented"],
+    "last_updated": "2026-05-10"
+  },
+
+  "tools/lot-calculator": {
+    "type": "system_tool",
+    "status": "production",
+    "url": "https://fx-lot-calculator-xi.vercel.app",
+    "production_ready": true,
+    "last_updated": "2026-05-09"
+  },
+
+  "tools/simulator": {
+    "type": "system_tool",
+    "status": "in_development",
+    "production_ready": false,
+    "last_updated": "2026-05-09"
+  },
+
+  "dev-dashboard/": {
+    "type": "system_dev",
+    "status": "implemented",
+    "noindex": true,
+    "production_visible": false,
+    "production_ready": false,
+    "notes": "本番環境では非表示・noindex設定済み。本番ビルド時に除外すること。",
+    "last_updated": "2026-05-10"
+  }
+}
