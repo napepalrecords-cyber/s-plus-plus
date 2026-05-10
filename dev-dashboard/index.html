@@ -368,6 +368,7 @@
     <a href="#" onclick="showPage('content'); return false;" id="nav-content">コンテンツ</a>
     <a href="#" onclick="showPage('supportlog'); return false;" id="nav-supportlog">support-log</a>
     <a href="#" onclick="showPage('changelog'); return false;" id="nav-changelog">変更ログ</a>
+    <a href="#" onclick="showPage('siteidentity'); return false;" id="nav-siteidentity">サイトID</a>
     <a href="#" onclick="showPage('system'); return false;" id="nav-system">システム</a>
     <a href="#" onclick="showPage('prodnotes'); return false;" id="nav-prodnotes">本番NG事項</a>
   </div>
@@ -395,6 +396,9 @@
       </div>
       <div class="sidebar-item" onclick="showPage('changelog')" id="sb-changelog">
         <span class="icon">📝</span> 変更ログ
+      </div>
+      <div class="sidebar-item" onclick="showPage('siteidentity')" id="sb-siteidentity">
+        <span class="icon">🏷️</span> サイトID管理
       </div>
       <div class="sidebar-item" onclick="showPage('system')" id="sb-system">
         <span class="icon">⚙️</span> システム開発
@@ -1074,6 +1078,179 @@
         </div>
       </div>
     </div>
+
+    <!-- ===== PAGE: サイトID管理 ===== -->
+    <div class="page" id="page-siteidentity">
+      <div class="page-title">🏷️ サイトID管理・フェーズ管理</div>
+      <div class="page-sub">S++ブランド・タグライン・URL構造の運用ルールを管理する</div>
+
+      <!-- 現在のフェーズ -->
+      <div class="stat-grid">
+        <div class="stat-card" style="border-color: rgba(0,200,200,0.3);">
+          <div class="stat-label">正式サイト名（固定・変更禁止）</div>
+          <div class="stat-value" style="font-size:28px; color:var(--accent);">S++</div>
+          <div class="stat-sub">永久固定</div>
+        </div>
+        <div class="stat-card" style="border-color: rgba(63,185,80,0.3);">
+          <div class="stat-label">現在のフェーズ</div>
+          <div class="stat-value ok">Phase 1</div>
+          <div class="stat-sub">海外FX・プロップファーム実測ガイド</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">現在のタグライン</div>
+          <div class="stat-value" style="font-size:13px; line-height:1.5; margin-top:4px;">S++｜海外FX・<br>プロップファーム実測ガイド</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">次フェーズ移行条件</div>
+          <div class="stat-value" style="font-size:12px; line-height:1.5; margin-top:4px; color:var(--yellow);">国内FX証券会社記事<br>最低限公開後</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- 変更禁止 / 変更可能 -->
+        <div class="card">
+          <div class="card-title">変更禁止項目（固定）</div>
+          <div class="alert alert-err" style="margin-bottom:12px">
+            ⛔ 以下は本番・開発環境を問わず変更禁止
+          </div>
+          <table class="tbl">
+            <thead><tr><th>項目</th><th>固定値</th></tr></thead>
+            <tbody>
+              <tr><td>正式サイト名</td><td style="color:var(--accent); font-weight:700;">S++</td></tr>
+              <tr><td>brokers URL構造</td><td style="color:var(--accent);">/brokers/</td></tr>
+              <tr><td>prop-firms URL構造</td><td style="color:var(--accent);">/prop-firms/</td></tr>
+              <tr><td>support-log URL構造</td><td style="color:var(--accent);">/support-log/</td></tr>
+              <tr><td>compare URL構造</td><td style="color:var(--accent);">/compare/</td></tr>
+              <tr><td>guides URL構造</td><td style="color:var(--accent);">/guides/</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">変更可能項目（フェーズで変化）</div>
+          <div class="alert alert-info" style="margin-bottom:12px">
+            ℹ️ 以下はフェーズに応じて変更可能
+          </div>
+          <table class="tbl">
+            <thead><tr><th>項目</th><th>状態</th></tr></thead>
+            <tbody>
+              <tr><td>トップページ title</td><td><span class="badge badge-warn">フェーズ依存</span></td></tr>
+              <tr><td>H1テキスト</td><td><span class="badge badge-warn">フェーズ依存</span></td></tr>
+              <tr><td>meta description</td><td><span class="badge badge-warn">フェーズ依存</span></td></tr>
+              <tr><td>タグライン</td><td><span class="badge badge-warn">フェーズ依存</span></td></tr>
+              <tr><td>LPコピー</td><td><span class="badge badge-warn">フェーズ依存</span></td></tr>
+              <tr><td>ナビゲーションメニュー</td><td><span class="badge badge-warn">フェーズ依存</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- フェーズ別タイトル方針 -->
+      <div class="card">
+        <div class="card-title">フェーズ別タイトル方針</div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>フェーズ</th>
+              <th>タイトル</th>
+              <th>移行条件</th>
+              <th>現在</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background: rgba(0,200,200,0.04);">
+              <td style="color:var(--accent); font-weight:700;">Phase 1</td>
+              <td>S++｜海外FX・プロップファーム実測ガイド</td>
+              <td>初期公開状態</td>
+              <td><span class="badge badge-ok">✅ 現在</span></td>
+            </tr>
+            <tr>
+              <td>Phase 2</td>
+              <td>S++｜FX業者・プロップファーム実測ガイド</td>
+              <td>国内FX証券会社記事が最低限公開されたら</td>
+              <td><span class="badge badge-warn">未達成</span></td>
+            </tr>
+            <tr>
+              <td>Phase 3</td>
+              <td>S++｜FXトレーダーのための統合プラットフォーム</td>
+              <td>ロット計算ツール・シミュレーター・ジャーナル・support-log継続運用・全記事カテゴリ揃い</td>
+              <td><span class="badge badge-ng">長期計画</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Phase 3移行条件詳細 -->
+      <div class="card">
+        <div class="card-title">Phase 3移行条件チェックリスト</div>
+        <p style="font-size:12px; color:var(--text2); margin-bottom:12px">「統合プラットフォーム」と名乗るには以下が全て揃う必要がある</p>
+        <ul class="checklist">
+          <li>
+            <div class="checklist-label"><span class="check-icon">❌</span> ロット計算ツールが実用レベル</div>
+            <span class="badge badge-ok">公開済み（条件達成）</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">❌</span> 損益期待値シミュレーターが実用レベル</div>
+            <span class="badge badge-ng">未達成</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">❌</span> トレードジャーナルが最低限動作</div>
+            <span class="badge badge-ng">未達成</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">❌</span> support-logが継続運用中</div>
+            <span class="badge badge-warn">運用開始済み・継続中</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">❌</span> 国内FX記事が揃っている</div>
+            <span class="badge badge-ng">未達成</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">❌</span> 海外FX記事が揃っている</div>
+            <span class="badge badge-warn">XMのみ実装済み</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">❌</span> プロップファーム記事が揃っている</div>
+            <span class="badge badge-warn">MD完成・未実装</span>
+          </li>
+        </ul>
+        <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:12px; color:var(--red);">
+          ⚠ Phase 3の条件を満たさずに「統合プラットフォーム」というタイトルを使用しないこと
+        </div>
+      </div>
+
+      <!-- 本番反映前チェック -->
+      <div class="card">
+        <div class="card-title">サイトID本番反映前チェックリスト</div>
+        <ul class="checklist">
+          <li>
+            <div class="checklist-label"><span class="check-icon">✅</span> サイト名がS++で固定されている</div>
+            <span class="badge badge-ok">OK</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">✅</span> タグラインが現在フェーズ（Phase 1）と一致している</div>
+            <span class="badge badge-ok">OK</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">⚠️</span> title / H1 / meta description が一致している</div>
+            <span class="badge badge-warn">要確認</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">✅</span> 未完成機能を前面に出していない</div>
+            <span class="badge badge-ok">OK（準備中表示）</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">✅</span> 「統合プラットフォーム」と名乗る条件を満たしているか</div>
+            <span class="badge badge-ng">未達成（Phase 1）</span>
+          </li>
+          <li>
+            <div class="checklist-label"><span class="check-icon">✅</span> URL構造を変更していない</div>
+            <span class="badge badge-ok">OK</span>
+          </li>
+        </ul>
+      </div>
+
+    </div><!-- /page-siteidentity -->
 
     <!-- ===== PAGE: システム開発 ===== -->
     <div class="page" id="page-system">
