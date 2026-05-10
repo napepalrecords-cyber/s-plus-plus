@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>S++ Dev Dashboard｜開発管理</title>
+  <!-- DEV ONLY: 本番環境では除外またはnoindex -->
+  <style>
+    :root {
+      --bg: #090c10;
+      --surface: #0d1117;
+      --surface2: #161b22;
+      --surface3: #1c2128;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.12);
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --text3: #6e7681;
+      --accent: #00c8c8;
+      --accent2: rgba(0,200,200,0.12);
+      --blue: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --orange: #f0883e;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --ok: #3fb950;
+      --ng: #f85149;
+      --warn: #d29922;
+      --info: #58a6ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ===== TOP BAR ===== */
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border2);
+      padding: 0 20px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .topbar-logo {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+    .topbar-badge {
+      font-size: 10px;
+      background: rgba(248,81,73,0.15);
+      color: var(--red);
+      border: 1px solid rgba(248,81,73,0.3);
+      border-radius: 4px;
+      padding: 2px 8px;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+    .topbar-right a {
+      color: var(--text2);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .topbar-right a:hover { background: var(--surface2); color: var(--text); }
+    .topbar-right a.active { color: var(--accent); }
+    .production-warning {
+      font-size: 11px;
+      background: rgba(248,81,73,0.08);
+      color: var(--red);
+      border: 1px solid rgba(248,81,73,0.2);
+      border-radius: 4px;
+      padding: 3px 10px;
+    }
+
+    /* ===== LAYOUT ===== */
+    .layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      min-height: calc(100vh - 48px);
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky;
+      top: 48px;
+      height: calc(100vh - 48px);
+      overflow-y: auto;
+    }
+    .sidebar-section {
+      padding: 0 8px;
+      margin-bottom: 20px;
+    }
+    .sidebar-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--text2);
+      transition: all 0.15s;
+      font-size: 12px;
+    }
+    .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+    .sidebar-item.active { background: var(--accent2); color: var(--accent); }
+    .sidebar-item .icon { font-size: 14px; width: 16px; text-align: center; }
+    .sidebar-count {
+      margin-left: auto;
+      font-size: 10px;
+      background: var(--surface3);
+      color: var(--text3);
+      border-radius: 10px;
+      padding: 1px 6px;
+    }
+    .sidebar-count.warn { background: rgba(210,153,34,0.15); color: var(--yellow); }
+    .sidebar-count.err { background: rgba(248,81,73,0.15); color: var(--red); }
+
+    /* ===== MAIN ===== */
+    .main {
+      padding: 24px;
+      overflow-y: auto;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+    .page-sub {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 20px;
+    }
+
+    /* ===== CARDS ===== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title::before {
+      content: "";
+      display: inline-block;
+      width: 2px;
+      height: 14px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* ===== GRID ===== */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+    @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ===== STAT CARDS ===== */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; }
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-value.ok { color: var(--green); }
+    .stat-value.warn { color: var(--yellow); }
+    .stat-value.err { color: var(--red); }
+    .stat-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+    /* ===== TABLE ===== */
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text3);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border2);
+    }
+    .tbl td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text2);
+      vertical-align: middle;
+    }
+    .tbl td:first-child { color: var(--text); }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl tr:hover td { background: var(--surface2); }
+
+    /* ===== BADGES ===== */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .badge-ok { background: rgba(63,185,80,0.12); color: var(--green); border: 1px solid rgba(63,185,80,0.2); }
+    .badge-ng { background: rgba(248,81,73,0.12); color: var(--red); border: 1px solid rgba(248,81,73,0.2); }
+    .badge-warn { background: rgba(210,153,34,0.12); color: var(--yellow); border: 1px solid rgba(210,153,34,0.2); }
+    .badge-info { background: rgba(88,166,255,0.12); color: var(--blue); border: 1px solid rgba(88,166,255,0.2); }
+    .badge-dev { background: rgba(188,140,255,0.12); color: var(--purple); border: 1px solid rgba(188,140,255,0.2); }
+    .badge-measured { background: rgba(0,200,200,0.12); color: var(--accent); border: 1px solid rgba(0,200,200,0.2); }
+
+    /* ===== CHECKLIST ===== */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist-label { display: flex; align-items: center; gap: 8px; color: var(--text2); }
+    .check-icon { font-size: 14px; width: 16px; }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-wrap { margin-bottom: 10px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+    .progress-bar { height: 4px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+    .progress-fill.ok { background: var(--green); }
+    .progress-fill.warn { background: var(--yellow); }
+    .progress-fill.err { background: var(--red); }
+    .progress-fill.accent { background: var(--accent); }
+
+    /* ===== ALERT ===== */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .alert-err { background: rgba(248,81,73,0.08); border: 1px solid rgba(248,81,73,0.2); color: var(--red); }
+    .alert-warn { background: rgba(210,153,34,0.08); border: 1px solid rgba(210,153,34,0.2); color: var(--yellow); }
+    .alert-ok { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.2); color: var(--green); }
+    .alert-info { background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.2); color: var(--blue); }
+
+    /* ===== PRODUCTION READY ===== */
+    .prod-yes { color: var(--green); font-weight: 700; }
+    .prod-no { color: var(--red); font-weight: 700; }
+    .prod-pending { color: var(--yellow); font-weight: 700; }
+
+    /* ===== CHANGELOG ===== */
+    .changelog-item {
+      border-left: 2px solid var(--border2);
+      padding: 0 0 20px 16px;
+      margin-left: 8px;
+      position: relative;
+    }
+    .changelog-item::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+    }
+    .changelog-date { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+    .changelog-title { font-size: 13px; color: var(--text); font-weight: 600; margin-bottom: 4px; }
+    .changelog-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+    .changelog-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+
+    /* ===== PROD NOTES ===== */
+    .prod-note {
+      background: rgba(248,81,73,0.05);
+      border: 1px solid rgba(248,81,73,0.15);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .prod-note-title { font-size: 12px; font-weight: 700; color: var(--red); margin-bottom: 6px; }
+    .prod-note-body { font-size: 12px; color: var(--text2); line-height: 1.7; }
+    .prod-note-body code {
+      background: var(--surface3);
+      color: var(--accent);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">S++ DEV</span>
+    <span class="topbar-badge">DEV ONLY — 本番非公開</span>
+  </div>
+  <div class="topbar-right">
+    <span class="production-warning">⚠ 本番環境では非表示・noindex</span>
+    <a href="/index.html">← サイトTOP</a>
+    <a href="#" onclick="showPage('overview'); return false;" class="active" id="nav-overview">全体進捗</a>
+    <a href="#" onclick="showPage('release'); return false;" id="nav-release">本番移行</a>
+    <a href="#" onclick="showPage('content'); return false;" id="nav-content">コンテンツ</a>
+    <a href="#" onclick="showPage('supportlog'); return false;" id="nav-supportlog">support-log</a>
+    <a href="#" onclick="showPage('changelog'); return false;" id="nav-changelog">変更ログ</a>
+    <a href="#" onclick="showPage('system'); return false;" id="nav-system">システム</a>
+    <a href="#" onclick="showPage('prodnotes'); return false;" id="nav-prodnotes">本番NG事項</a>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">管理メニュー</div>
+      <div class="sidebar-item active" onclick="showPage('overview')" id="sb-overview">
+        <span class="icon">📊</span> 全体進捗
+      </div>
+      <div class="sidebar-item" onclick="showPage('release')" id="sb-release">
+        <span class="icon">🚀</span> 本番移行チェック
+        <span class="sidebar-count err">3</span>
+      </div>
+      <div class="sidebar-item" onclick="showPage('content')" id="sb-content">
+        <span class="icon">📄</span> コンテンツ管理
+        <span class="sidebar-count warn">5</span>
+      </div>
+      <div class="sidebar-item" onclick="showPage('supportlog')" id="sb-supportlog">
+        <span class="icon">🔬</span> support-log管理
+      </div>
+      <div class="sidebar-item" onclick="showPage('changelog')" id="sb-changelog">
+        <span class="icon">📝</span> 変更ログ
+      </div>
+      <div class="sidebar-item" onclick="showPage('system')" id="sb-system">
+        <span class="icon">⚙️</span> システム開発
+      </div>
+      <div class="sidebar-item" onclick="showPage('prodnotes')" id="sb-prodnotes">
+        <span class="icon">⛔</span> 本番NG事項
+        <span class="sidebar-count err">5</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">クイックリンク</div>
+      <div class="sidebar-item" onclick="window.open('/brokers/xm-trading/')">
+        <span class="icon">🔗</span> XM記事
+      </div>
+      <div class="sidebar-item" onclick="window.open('https://github.com/napepalrecords-cyber/s-plus-plus')">
+        <span class="icon">🐙</span> GitHub
+      </div>
+      <div class="sidebar-item" onclick="window.open('https://vercel.com')">
+        <span class="icon">▲</span> Vercel
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">最終更新</div>
+      <div style="padding: 0 8px; font-size: 11px; color: var(--text3);">
+        2026-05-10<br>
+        XM記事実装完了
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ===== PAGE: 全体進捗 ===== -->
+    <div class="page active" id="page-overview">
+      <div class="page-title">📊 全体進捗ダッシュボード</div>
+      <div class="page-sub">S++全体の開発状況を一目で確認する</div>
+
+      <!-- サマリー -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">総記事数</div>
+          <div class="stat-value">35</div>
+          <div class="stat-sub">Wave1 完成</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本番反映済み</div>
+          <div class="stat-value ok">5</div>
+          <div class="stat-sub">XM Trading</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本番反映待ち</div>
+          <div class="stat-value warn">30</div>
+          <div class="stat-sub">Exness〜The5ers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">本番NGあり</div>
+          <div class="stat-value err">5</div>
+          <div class="stat-sub">要対応</div>
+        </div>
+      </div>
+
+      <!-- カテゴリ別進捗 -->
+      <div class="card">
+        <div class="card-title">カテゴリ別進捗</div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>カテゴリ</th>
+              <th>総数</th>
+              <th>開発中</th>
+              <th>レビュー待ち</th>
+              <th>本番反映待ち</th>
+              <th>本番反映済み</th>
+              <th>進捗</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>証券会社記事</td>
+              <td>20</td>
+              <td>0</td>
+              <td>15</td>
+              <td>0</td>
+              <td>5</td>
+              <td><div class="progress-bar"><div class="progress-fill ok" style="width:25%"></div></div></td>
+            </tr>
+            <tr>
+              <td>プロップファーム記事</td>
+              <td>15</td>
+              <td>0</td>
+              <td>15</td>
+              <td>0</td>
+              <td>0</td>
+              <td><div class="progress-bar"><div class="progress-fill warn" style="width:0%"></div></div></td>
+            </tr>
+            <tr>
+              <td>support-log</td>
+              <td>7</td>
+              <td>4</td>
+              <td>0</td>
+              <td>0</td>
+              <td>3</td>
+              <td><div class="progress-bar"><div class="progress-fill accent" style="width:43%"></div></div></td>
+            </tr>
+            <tr>
+              <td>ツール・システム</td>
+              <td>3</td>
+              <td>2</td>
+              <td>0</td>
+              <td>0</td>
+              <td>1</td>
+              <td><div class="progress-bar"><div class="progress-fill ok" style="width:33%"></div></div></td>
+            </tr>
+            <tr>
+              <td>比較記事</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td><div class="progress-bar"><div class="progress-fill err" style="width:0%"></div></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 機能別ステータス -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">S++ 機能一覧</div>
+          <table class="tbl">
+            <thead>
+              <tr><th>機能</th><th>ステータス</th><th>本番可否</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>FXロット計算ツール</td>
+                <td><span class="badge badge-ok">本番反映済み</span></td>
+                <td class="prod-yes">✅ OK</td>
+              </tr>
+              <tr>
+                <td>S++ TOPページ</td>
+                <td><span class="badge badge-ok">本番反映済み</span></td>
+                <td class="prod-yes">✅ OK</td>
+              </tr>
+              <tr>
+                <td>XM記事群（5本）</td>
+                <td><span class="badge badge-ok">本番反映済み</span></td>
+                <td class="prod-pending">⚠ アフィリリンク待ち</td>
+              </tr>
+              <tr>
+                <td>Exness記事群（5本）</td>
+                <td><span class="badge badge-warn">レビュー待ち</span></td>
+                <td class="prod-no">❌ 未実装</td>
+              </tr>
+              <tr>
+                <td>ThreeTrader記事群（5本）</td>
+                <td><span class="badge badge-warn">レビュー待ち</span></td>
+                <td class="prod-no">❌ 未実装</td>
+              </tr>
+              <tr>
+                <td>MyFXMarkets記事群（5本）</td>
+                <td><span class="badge badge-warn">レビュー待ち</span></td>
+                <td class="prod-no">❌ 未実装</td>
+              </tr>
+              <tr>
+                <td>Fintokei記事群（5本）</td>
+                <td><span class="badge badge-warn">レビュー待ち</span></td>
+                <td class="prod-no">❌ 未実装</td>
+              </tr>
+              <tr>
+                <td>Funded7記事群（5本）</td>
+                <td><span class="badge badge-warn">レビュー待ち</span></td>
+                <td class="prod-no">❌ 未実装</td>
+              </tr>
+              <tr>
+                <td>The5ers記事群（5本）</td>
+                <td><span class="badge badge-warn">レビュー待ち</span></td>
+                <td class="prod-no">❌ 未実装</td>
+              </tr>
+              <tr>
+                <td>support-log一覧ページ</td>
+                <td><span class="badge badge-dev">開発中</span></td>
+                <td class="prod-no">❌ 未実装</td>
+              </tr>
+              <tr>
+                <td>シミュレーター</td>
+                <td><span class="badge badge-dev">開発中</span></td>
+                <td class="prod-no">❌ 未実装</td>
+              </tr>
+              <tr>
+                <td>Googleサーチコンソール</td>
+                <td><span class="badge badge-ng">未着手</span></td>
+                <td class="prod-no">❌ 要設定</td>
+              </tr>
+              <tr>
+                <td>独自ドメイン取得</td>
+                <td><span class="badge badge-ng">未着手</span></td>
+                <td class="prod-no">❌ 要取得</td>
+              </tr>
+              <tr>
+                <td>アフィリエイト申請</td>
+                <td><span class="badge badge-ng">未着手</span></td>
+                <td class="prod-no">❌ 要申請</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-title">次にやること（優先順位順）</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="alert alert-err">
+              <span>①</span>
+              <div><strong>XM実測データの受け取り</strong><br>仲間からの入出金データ→SL-004完成→📊初点灯</div>
+            </div>
+            <div class="alert alert-warn">
+              <span>②</span>
+              <div><strong>アフィリエイト申請</strong><br>各社へ申請。審査に1〜2週間かかるため最優先で着手</div>
+            </div>
+            <div class="alert alert-warn">
+              <span>③</span>
+              <div><strong>Exness・ThreeTrader記事の実装</strong><br>XMと同じ手順でHTMLを生成してGitHubに追加</div>
+            </div>
+            <div class="alert alert-info">
+              <span>④</span>
+              <div><strong>Googleサーチコンソール登録</strong><br>サイトマップ送信・index申請</div>
+            </div>
+            <div class="alert alert-info">
+              <span>⑤</span>
+              <div><strong>独自ドメイン取得</strong><br>本番URL設定後にVercelで接続</div>
+            </div>
+            <div class="alert alert-info">
+              <span>⑥</span>
+              <div><strong>support-log一覧ページ実装</strong><br>ThreeTraderのSL-005〜007から公開開始</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: 本番移行チェック ===== -->
+    <div class="page" id="page-release">
+      <div class="page-title">🚀 本番移行チェックダッシュボード</div>
+      <div class="page-sub">開発環境から本番環境への移行前に事故を防ぐ</div>
+
+      <div class="alert alert-err">
+        ⚠ <strong>現在3件の本番NGがあります。</strong> 本番反映前に必ず解消してください。
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">本番移行チェックリスト（XM記事群）</div>
+          <ul class="checklist">
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> 空リンクがない</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">⚠️</span> アフィリンクまたは公式リンクが設定済み</div>
+              <span class="badge badge-warn">要確認</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> プレースホルダーが残っていない</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> 未確認情報を確認済みと書いていない</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> support-logのステータスが正しい</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> schemaが過剰ではない（実測前はArticle+FAQ）</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> meta title / descriptionが設定済み</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> canonicalが設定済み</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">⚠️</span> noindex / index設定が正しい</div>
+              <span class="badge badge-warn">要確認</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> リスク表記が入っている</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> 広告・アフィリエイト表記が入っている</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">❌</span> 404リンクがない（support-log個別URL未作成）</div>
+              <span class="badge badge-ng">NG</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> 最終更新日が表示されている</div>
+              <span class="badge badge-ok">OK</span>
+            </li>
+            <li>
+              <div class="checklist-label"><span class="check-icon">✅</span> DEV ONLYコメントが本番で非表示になる</div>
+              <span class="badge badge-ok">OK（コメント化済み）</span>
+            </li>
+          </ul>
+          <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:12px; color:var(--text2)">本番反映可否</span>
+            <span class="badge badge-warn">⚠ 一部NG — アフィリリンク・404確認後に反映</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">DEV ONLY 管理項目</div>
+          <div style="font-size:12px; color:var(--text2); margin-bottom:12px;">
+            以下の項目は開発環境でのみ表示・本番では除外が必要
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr><th>項目</th><th>対応状況</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code style="color:var(--accent);background:var(--surface3);padding:1px 5px;border-radius:3px;">/dev-dashboard/</code> 本番非表示</td>
+                <td><span class="badge badge-warn">要設定</span></td>
+              </tr>
+              <tr>
+                <td>アフィリリンク注記<br><code style="color:var(--accent);background:var(--surface3);padding:1px 5px;border-radius:3px;">[DEV ONLY]</code>コメント</td>
+                <td><span class="badge badge-ok">コメント化済み</span></td>
+              </tr>
+              <tr>
+                <td>TODO: 個別URL化予定コメント</td>
+                <td><span class="badge badge-ok">付与済み</span></td>
+              </tr>
+              <tr>
+                <td>DEV METAタグ</td>
+                <td><span class="badge badge-ok">設定済み</span></td>
+              </tr>
+              <tr>
+                <td>本番ビルド時のdev-dashboardの除外</td>
+                <td><span class="badge badge-warn">手動確認必要</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: コンテンツ管理 ===== -->
+    <div class="page" id="page-content">
+      <div class="page-title">📄 コンテンツ管理ダッシュボード</div>
+      <div class="page-sub">SEO記事・アフィリエイト記事・support-log連携を管理する</div>
+
+      <div class="card">
+        <div class="card-title">記事一覧（Wave1）</div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>記事名</th>
+              <th>タイプ</th>
+              <th>ステータス</th>
+              <th>support-log</th>
+              <th>CTA</th>
+              <th>K所感</th>
+              <th>実装</th>
+              <th>本番可否</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>XM Trading Hub</td>
+              <td><span class="badge badge-info">Hub</span></td>
+              <td><span class="badge badge-ok">実装済み</span></td>
+              <td>SL-001〜004</td>
+              <td><span class="badge badge-warn">公式URL</span></td>
+              <td><span class="badge badge-warn">検証中</span></td>
+              <td><span class="badge badge-ok">✅</span></td>
+              <td class="prod-pending">⚠ アフィリ待ち</td>
+            </tr>
+            <tr>
+              <td>XM 評判</td>
+              <td><span class="badge badge-info">review</span></td>
+              <td><span class="badge badge-ok">実装済み</span></td>
+              <td>SL-001〜004</td>
+              <td><span class="badge badge-warn">公式URL</span></td>
+              <td><span class="badge badge-warn">検証中</span></td>
+              <td><span class="badge badge-ok">✅</span></td>
+              <td class="prod-pending">⚠ アフィリ待ち</td>
+            </tr>
+            <tr>
+              <td>XM 出金</td>
+              <td><span class="badge badge-info">withdrawal</span></td>
+              <td><span class="badge badge-ok">実装済み</span></td>
+              <td>SL-001, SL-004</td>
+              <td><span class="badge badge-warn">公式URL</span></td>
+              <td><span class="badge badge-warn">検証中</span></td>
+              <td><span class="badge badge-ok">✅</span></td>
+              <td class="prod-pending">⚠ アフィリ待ち</td>
+            </tr>
+            <tr>
+              <td>XM 安全性</td>
+              <td><span class="badge badge-info">safety</span></td>
+              <td><span class="badge badge-ok">実装済み</span></td>
+              <td>SL-003, SL-004</td>
+              <td><span class="badge badge-warn">公式URL</span></td>
+              <td><span class="badge badge-warn">検証中</span></td>
+              <td><span class="badge badge-ok">✅</span></td>
+              <td class="prod-pending">⚠ アフィリ待ち</td>
+            </tr>
+            <tr>
+              <td>XM Kレビュー</td>
+              <td><span class="badge badge-info">k-review</span></td>
+              <td><span class="badge badge-ok">実装済み</span></td>
+              <td>SL-001〜004</td>
+              <td><span class="badge badge-warn">公式URL</span></td>
+              <td><span class="badge badge-warn">検証中</span></td>
+              <td><span class="badge badge-ok">✅</span></td>
+              <td class="prod-pending">⚠ アフィリ待ち</td>
+            </tr>
+            <tr>
+              <td>Exness Hub</td>
+              <td><span class="badge badge-info">Hub</span></td>
+              <td><span class="badge badge-warn">MD完成</span></td>
+              <td>—</td>
+              <td><span class="badge badge-ng">未設定</span></td>
+              <td><span class="badge badge-warn">検証中</span></td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+            <tr>
+              <td>ThreeTrader 出金</td>
+              <td><span class="badge badge-info">withdrawal</span></td>
+              <td><span class="badge badge-measured">実測反映済み</span></td>
+              <td>SL-005, SL-006</td>
+              <td><span class="badge badge-ng">未設定</span></td>
+              <td><span class="badge badge-warn">検証中</span></td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+            <tr>
+              <td>ThreeTrader 安全性</td>
+              <td><span class="badge badge-info">safety</span></td>
+              <td><span class="badge badge-measured">実測反映済み</span></td>
+              <td>SL-005〜007</td>
+              <td><span class="badge badge-ng">未設定</span></td>
+              <td><span class="badge badge-warn">検証中</span></td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+            <tr>
+              <td>Fintokei Kレビュー</td>
+              <td><span class="badge badge-info">k-review</span></td>
+              <td><span class="badge badge-measured">実測（失格経験）</span></td>
+              <td>—</td>
+              <td><span class="badge badge-ng">未設定</span></td>
+              <td><span class="badge badge-ok">一次体験あり</span></td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+            <tr>
+              <td>The5ers Kレビュー</td>
+              <td><span class="badge badge-info">k-review</span></td>
+              <td><span class="badge badge-measured">実測（大会11位）</span></td>
+              <td>—</td>
+              <td><span class="badge badge-ng">未設定</span></td>
+              <td><span class="badge badge-ok">大会実績あり</span></td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: support-log管理 ===== -->
+    <div class="page" id="page-supportlog">
+      <div class="page-title">🔬 support-log管理ダッシュボード</div>
+      <div class="page-sub">S++の一次情報DBを管理する</div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">総エントリー数</div>
+          <div class="stat-value">7</div>
+          <div class="stat-sub">SL-001〜007</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">実測済み</div>
+          <div class="stat-value ok">3</div>
+          <div class="stat-sub">ThreeTrader SL-005〜007</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">確認予定</div>
+          <div class="stat-value warn">3</div>
+          <div class="stat-sub">XM SL-001〜003</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">入力待ち</div>
+          <div class="stat-value err">1</div>
+          <div class="stat-sub">XM SL-004</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">support-log一覧</div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>SL番号</th>
+              <th>対象業者</th>
+              <th>カテゴリ</th>
+              <th>内容</th>
+              <th>ステータス</th>
+              <th>確認者</th>
+              <th>記事反映</th>
+              <th>公開可否</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SL-001</td>
+              <td>XM Trading</td>
+              <td>出金</td>
+              <td>利益分をbitwalletへ出金できるか</td>
+              <td><span class="badge badge-warn">📋 確認予定</span></td>
+              <td>K</td>
+              <td><span class="badge badge-warn">未反映</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+            <tr>
+              <td>SL-002</td>
+              <td>XM Trading</td>
+              <td>ボーナス</td>
+              <td>KIWAMI極口座のボーナス対象</td>
+              <td><span class="badge badge-warn">📋 確認予定</span></td>
+              <td>K</td>
+              <td><span class="badge badge-warn">未反映</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+            <tr>
+              <td>SL-003</td>
+              <td>XM Trading</td>
+              <td>規約</td>
+              <td>両建てルールの範囲</td>
+              <td><span class="badge badge-warn">📋 確認予定</span></td>
+              <td>K</td>
+              <td><span class="badge badge-warn">未反映</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+            <tr>
+              <td>SL-004</td>
+              <td>XM Trading</td>
+              <td>実口座検証</td>
+              <td>実口座の入出金テスト</td>
+              <td><span class="badge badge-ng">📋 入力待ち</span></td>
+              <td>S++ member A</td>
+              <td><span class="badge badge-ng">未反映</span></td>
+              <td class="prod-no">❌</td>
+            </tr>
+            <tr>
+              <td>SL-005</td>
+              <td>ThreeTrader</td>
+              <td>出金</td>
+              <td>出金処理時間の実測（3回）</td>
+              <td><span class="badge badge-measured">📊 実測済み</span></td>
+              <td>S++ member A</td>
+              <td><span class="badge badge-ok">反映済み</span></td>
+              <td class="prod-yes">✅</td>
+            </tr>
+            <tr>
+              <td>SL-006</td>
+              <td>ThreeTrader</td>
+              <td>入金</td>
+              <td>入金反映時間の実測（3回）</td>
+              <td><span class="badge badge-measured">📊 実測済み</span></td>
+              <td>S++ member A</td>
+              <td><span class="badge badge-ok">反映済み</span></td>
+              <td class="prod-yes">✅</td>
+            </tr>
+            <tr>
+              <td>SL-007</td>
+              <td>ThreeTrader</td>
+              <td>安全性</td>
+              <td>長期利用実績（3年超・300万円超）</td>
+              <td><span class="badge badge-measured">📊 実測済み</span></td>
+              <td>S++ member A</td>
+              <td><span class="badge badge-ok">反映済み</span></td>
+              <td class="prod-yes">✅</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: 変更ログ ===== -->
+    <div class="page" id="page-changelog">
+      <div class="page-title">📝 変更ログ・更新履歴</div>
+      <div class="page-sub">いつ・何を・なぜ・どこに変更したかを追えるようにする</div>
+
+      <div class="card">
+        <div class="card-title">変更履歴</div>
+        <div style="padding:8px 0;">
+
+          <div class="changelog-item">
+            <div class="changelog-date">2026-05-10</div>
+            <div class="changelog-title">XM Trading記事ページを開発環境に実装</div>
+            <div class="changelog-desc">
+              brokers/xm-trading/index.html をGitHubに追加。タブUI（概要/評判/出金/安全性/Kレビュー）で5記事を統合表示。
+              TOPページのXMカードの「詳細を見る」リンクを新URLに接続。
+            </div>
+            <div class="changelog-tags">
+              <span class="badge badge-ok">実装</span>
+              <span class="badge badge-info">XM Trading</span>
+            </div>
+          </div>
+
+          <div class="changelog-item">
+            <div class="changelog-date">2026-05-10</div>
+            <div class="changelog-title">ThreeTrader withdrawal・safety記事にSL-005〜007実測データを反映</div>
+            <div class="changelog-desc">
+              S++ member Aの実口座データ（出金3回・入金3回・長期利用実績）をsupport-logに収録し、記事に反映。
+              ThreeTraderの📊実測済みが初点灯。
+            </div>
+            <div class="changelog-tags">
+              <span class="badge badge-measured">実測反映</span>
+              <span class="badge badge-info">ThreeTrader</span>
+              <span class="badge badge-info">support-log</span>
+            </div>
+          </div>
+
+          <div class="changelog-item">
+            <div class="changelog-date">2026-05-10</div>
+            <div class="changelog-title">XM記事群 最終修正（ai P0〜P4指摘対応）</div>
+            <div class="changelog-desc">
+              ①「確認したところ（S++検証中）」の矛盾表現を修正。②Kレビューを「暫定判断と検証ログをまとめるページ」と明記。
+              ③K所感プレースホルダーを「検証予定項目リスト」に変更。④実測前のReview schema・ratingValueを削除。
+              ⑤HowTo schemaをArticle+FAQPageに変更。⑥空CTAリンクを公式URLに差し替え。
+            </div>
+            <div class="changelog-tags">
+              <span class="badge badge-warn">修正</span>
+              <span class="badge badge-info">XM Trading</span>
+            </div>
+          </div>
+
+          <div class="changelog-item">
+            <div class="changelog-date">2026-05-09</div>
+            <div class="changelog-title">Wave1全35記事のMDファイル生成完了</div>
+            <div class="changelog-desc">
+              Broker4社（XM・Exness・ThreeTrader・MyFXMarkets）×5記事＋Prop3社（Fintokei・Funded7・The5ers）×5記事。
+              S++ SEO MASTER DESIGN v1準拠。
+            </div>
+            <div class="changelog-tags">
+              <span class="badge badge-ok">完了</span>
+              <span class="badge badge-info">Wave1</span>
+            </div>
+          </div>
+
+          <div class="changelog-item">
+            <div class="changelog-date">2026-05-09</div>
+            <div class="changelog-title">S++ SEO MASTER DESIGN v1 策定</div>
+            <div class="changelog-desc">
+              K + ai（ChatGPT）共同設計。URL設計・UX思想・記事文体ルール・Wave設計・support-log設計を確定。
+            </div>
+            <div class="changelog-tags">
+              <span class="badge badge-ok">設計完了</span>
+              <span class="badge badge-info">SEO</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: システム開発 ===== -->
+    <div class="page" id="page-system">
+      <div class="page-title">⚙️ システム開発管理ダッシュボード</div>
+      <div class="page-sub">ロット計算ツール・シミュレーター・AI機能などを管理する</div>
+
+      <div class="card">
+        <div class="card-title">システム一覧</div>
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>機能名</th>
+              <th>目的</th>
+              <th>UI確認</th>
+              <th>スマホ</th>
+              <th>API連携</th>
+              <th>既知バグ</th>
+              <th>本番可否</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>FXロット計算ツール</td>
+              <td>リスク管理・ロット計算</td>
+              <td><span class="badge badge-ok">✅</span></td>
+              <td><span class="badge badge-ok">✅</span></td>
+              <td><span class="badge badge-ok">なし（スタンドアロン）</span></td>
+              <td>なし</td>
+              <td class="prod-yes">✅ 本番公開中</td>
+            </tr>
+            <tr>
+              <td>シミュレーター</td>
+              <td>バックテスト・戦略シミュレーション</td>
+              <td><span class="badge badge-warn">UI準備中</span></td>
+              <td><span class="badge badge-warn">未確認</span></td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td>未着手</td>
+              <td class="prod-no">❌ 準備中</td>
+            </tr>
+            <tr>
+              <td>support-log一覧ページ</td>
+              <td>一次情報DBの公開UI</td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td><span class="badge badge-ng">未確認</span></td>
+              <td><span class="badge badge-ng">なし（静的HTML）</span></td>
+              <td>未着手</td>
+              <td class="prod-no">❌ 未実装</td>
+            </tr>
+            <tr>
+              <td>AI分析機能</td>
+              <td>チャート分析・学習支援</td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td><span class="badge badge-ng">未確認</span></td>
+              <td><span class="badge badge-ng">未接続</span></td>
+              <td>未着手</td>
+              <td class="prod-no">❌ 長期計画</td>
+            </tr>
+            <tr>
+              <td>会員機能</td>
+              <td>ユーザー登録・ログイン</td>
+              <td><span class="badge badge-ng">未実装</span></td>
+              <td><span class="badge badge-ng">未確認</span></td>
+              <td><span class="badge badge-ng">未接続</span></td>
+              <td>未着手</td>
+              <td class="prod-no">❌ 長期計画</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">AI機能管理（簡易版）</div>
+        <div class="alert alert-info" style="margin-bottom:12px">
+          ℹ️ AI機能は現在長期計画段階。以下は将来実装時の管理項目テンプレート。
+        </div>
+        <table class="tbl">
+          <thead>
+            <tr><th>制御項目</th><th>内容</th><th>状態</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>売買を断定しない</td><td>「買い」「売り」の断定表現を禁止</td><td><span class="badge badge-warn">設計中</span></td></tr>
+            <tr><td>利益保証しない</td><td>「必ず儲かる」等の表現を禁止</td><td><span class="badge badge-warn">設計中</span></td></tr>
+            <tr><td>投資助言に見えすぎない</td><td>免責事項・観測ベースの表現を徹底</td><td><span class="badge badge-warn">設計中</span></td></tr>
+            <tr><td>根拠のないエントリー指示を出さない</td><td>分析根拠なしのシグナル禁止</td><td><span class="badge badge-warn">設計中</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== PAGE: 本番NG事項 ===== -->
+    <div class="page" id="page-prodnotes">
+      <div class="page-title">⛔ 本番NG事項ダッシュボード</div>
+      <div class="page-sub">本番公開前に必ず解消すべき事項・移行時注意点</div>
+
+      <div class="alert alert-err" style="margin-bottom:20px">
+        ⚠ <strong>現在5件の本番NG事項があります。</strong> 本番反映前に必ず対応してください。
+      </div>
+
+      <div class="prod-note">
+        <div class="prod-note-title">❌ NG-001：アフィリエイトリンク未設定</div>
+        <div class="prod-note-body">
+          全記事のCTAが公式URLになっています。アフィリエイト申請完了後、<code>[DEV ONLY]</code>コメント箇所をアフィリリンクに差し替えてください。<br>
+          対象：XM Hub / review / withdrawal / safety / k-review の5記事
+        </div>
+      </div>
+
+      <div class="prod-note">
+        <div class="prod-note-title">❌ NG-002：support-log個別URLが404</div>
+        <div class="prod-note-body">
+          記事内の<code>/support-log/xm-profit-withdrawal-bitwallet/</code>等のURLが存在しない。<br>
+          対応：support-log一覧ページを実装し、<code><!-- TODO: 個別URL化予定 --></code>の箇所を実URLに更新する。
+        </div>
+      </div>
+
+      <div class="prod-note">
+        <div class="prod-note-title">❌ NG-003：/dev-dashboard/ の本番非表示設定</div>
+        <div class="prod-note-body">
+          このダッシュボードは本番環境で非表示にする必要があります。<br>
+          対応①：<code>noindex</code>は設定済み。<br>
+          対応②：本番URLへの導線（ナビリンク等）を追加しないこと。<br>
+          対応③：独自ドメイン取得後、本番ビルドからdev-dashboardフォルダを除外する。
+        </div>
+      </div>
+
+      <div class="prod-note">
+        <div class="prod-note-title">⚠ NG-004：Googleサーチコンソール未設定</div>
+        <div class="prod-note-body">
+          本番URLでのindex申請がまだです。独自ドメイン取得後にサーチコンソールを設定し、sitemap.xmlを送信してください。
+        </div>
+      </div>
+
+      <div class="prod-note">
+        <div class="prod-note-title">⚠ NG-005：XM実測データ未収録（SL-004）</div>
+        <div class="prod-note-body">
+          XM Tradingの実口座検証データ（SL-004）がまだ入力待ちです。仲間からデータが届き次第、support-logに反映し、XM記事群を更新してください。<br>
+          更新対象：withdrawal記事・k-review記事の検証ログ
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px">
+        <div class="card-title">本番移行時のチェックフロー</div>
+        <div style="font-size:12px; line-height:2; color:var(--text2);">
+          1. NG-001（アフィリリンク）→ 申請完了後に差し替え<br>
+          2. NG-002（support-log URL）→ 一覧ページ実装後に更新<br>
+          3. NG-003（dev-dashboard）→ 本番ビルド時に除外確認<br>
+          4. NG-004（サーチコンソール）→ 独自ドメイン取得後に設定<br>
+          5. NG-005（XM実測）→ データ受領後に更新<br>
+          6. 全NG解消 → 本番URL（独自ドメイン）で公開
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+  function showPage(name) {
+    // ページ切り替え
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+
+    // サイドバー
+    document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+    const sb = document.getElementById('sb-' + name);
+    if (sb) sb.classList.add('active');
+
+    // ナビ
+    document.querySelectorAll('.topbar-right a').forEach(a => a.classList.remove('active'));
+    const nav = document.getElementById('nav-' + name);
+    if (nav) nav.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
