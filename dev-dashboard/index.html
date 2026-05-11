@@ -414,6 +414,10 @@
       <div class="sidebar-item" onclick="window.open('https://github.com/napepalrecords-cyber/s-plus-plus/tree/main/dev-dashboard/os')" style="border-left: 2px solid var(--accent); padding-left: 10px;">
         <span class="icon">🧠</span> OS_INDEX
       </div>
+      <div style="padding: 6px 8px 2px; font-size: 10px; color: var(--text3);">AI同期Root Entry:</div>
+      <div class="sidebar-item" onclick="navigator.clipboard.writeText('https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/OS_INDEX.md')" style="padding-left: 10px; font-size: 10px;">
+        <span class="icon">📋</span> raw URLをコピー
+      </div>
       <div class="sidebar-item" onclick="window.open('https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/ROOT.md')" style="padding-left: 10px;">
         <span class="icon">🌱</span> ROOT
       </div>
@@ -1097,6 +1101,29 @@
     <div class="page" id="page-siteidentity">
       <div class="page-title">🏷️ サイトID管理・フェーズ管理</div>
       <div class="page-sub">S++ブランド・タグライン・URL構造の運用ルールを管理する</div>
+
+      <!-- AI同期Root Entry -->
+      <div class="card" style="border-color: rgba(0,200,200,0.3); margin-bottom: 20px;">
+        <div class="card-title">🧠 S++ Cognitive OS — 役割分離</div>
+        <table class="info-table">
+          <tr>
+            <td>人間向けDev管理</td>
+            <td><a href="https://s-plus-plus.vercel.app/dev-dashboard/" target="_blank" style="color:var(--accent)">https://s-plus-plus.vercel.app/dev-dashboard/</a></td>
+          </tr>
+          <tr>
+            <td>AI同期Root Entry</td>
+            <td style="font-size:11px; word-break:break-all; color:var(--accent)">https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/OS_INDEX.md</td>
+          </tr>
+        </table>
+        <div style="margin-top:12px; font-size:12px; color:var(--text2);">
+          AI同期標準プロンプト：
+          <div style="background:var(--surface3); border-radius:6px; padding:10px; margin-top:6px; font-size:11px; color:var(--text); line-height:1.8;">
+            S++ Cognitive Operating Systemに同期してください。<br>
+            Root Entry: https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/OS_INDEX.md<br>
+            同期完了後、Current State / Next Action / Critical Updatesを整理してください。
+          </div>
+        </div>
+      </div>
 
       <!-- 現在のフェーズ -->
       <div class="stat-grid">
