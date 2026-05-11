@@ -1,27 +1,41 @@
 # LINT_RULES.md — ズレ検知基盤
-# S++ Cognitive Operating System v2.0.0
+# S++ Cognitive Operating System v2.1.0
 
 ```
-VERSION: 2.0.0
+VERSION: 2.1.0
 LAST_UPDATED: 2026-05-10
-SOURCE: Claude / S++初代開発チャット（全ての始まり）
+SOURCE: Claude / S++初代開発チャット + ChatGPT / S++基盤chat
 PURPOSE: ズレを検知し、補正可能にすること
+STATUS: 実運用開始（v2.1.0より）
 ```
 
 ---
 
 ## LINT思想
 
-このファイルは「今ズレているか」だけでなく、
+「今ズレているか」だけでなく、
 **「どこに影響する可能性があるか」**を検知する。
 
-将来的に `/lint` コマンドとして実装予定。
+---
+
+## Lint Trigger Rules（重要）
+
+更新が発生した時に**自動的に再確認すべき箇所**を定義する。
+
+| Trigger（何が変わったか） | 再確認が必要な箇所 |
+|---|---|
+| ROOT.md（思想変更） | MODULES全体・全記事HTML・LP |
+| XM記事HTML（テンプレート変更） | 全記事HTMLへの影響 |
+| support-log設計変更 | 全記事内のsupport-logリンク |
+| フェーズ移行 | title・H1・meta・ROOT.md R-6 |
+| アフィリリンク取得 | 全記事の[DEV ONLY]箇所 |
+| 独自ドメイン取得 | 全記事の内部リンク（全面切り替え） |
+| SL-004完成 | XM withdrawal・k-review記事 |
+| OS_INDEX.md変更 | ROOT・DEPENDENCYの再確認 |
 
 ---
 
 ## L-1. 思想のズレ検知
-
-新しいAI・チャットが作業を開始する前に確認：
 
 ```
 □ S++を「比較サイト」「ランキングサイト」として扱っていないか
@@ -31,28 +45,23 @@ PURPOSE: ズレを検知し、補正可能にすること
 □ 禁止表現を使っていないか
   （「完全に安全」「必ず儲かる」「総合的におすすめ」等）
 □ 「ズレを完全に消す」ことを目的にしていないか
-  （正：「ズレを検知・補正する」）
 ```
 
 ---
 
 ## L-2. 実装のズレ検知
 
-記事HTML実装前に確認：
-
 ```
 □ XM記事のHTMLをテンプレートとして継承しているか
-□ Schema設計を守っているか
-  （実測前：Article+FAQPage / 実測後：+Review）
+□ Schema設計を守っているか（実測前：Article+FAQPage）
 □ ratingValueを実測前に入れていないか
 □ DEV ONLYコメントが適切に管理されているか
-□ support-logリンクに「TODO: 個別URL化予定」コメントが付与されているか
+□ support-logリンクに「TODO: 個別URL化予定」が付与されているか
 □ /dev-dashboard/がnoindex設定されているか
-□ アフィリリンクが[DEV ONLY]コメントで管理されているか
-□ 「確認したところ（S++検証中）」のような矛盾表現がないか
-□ K所感のプレースホルダーが公開画面に残っていないか
 □ 広告・アフィリエイト表記が入っているか
 □ 海外FXリスク表記が入っているか
+□ 「確認したところ（S++検証中）」のような矛盾表現がないか
+□ K所感のプレースホルダーが公開画面に残っていないか
 ```
 
 ---
@@ -62,7 +71,7 @@ PURPOSE: ズレを検知し、補正可能にすること
 ```
 □ 比較記事を実測データ揃う前に作ろうとしていないか
 □ 完璧主義で公開が遅れていないか（80〜85点で公開・育てる思想）
-□ support-logより記事生成を優先していないか（support-logが核DB）
+□ support-logより記事生成を優先していないか
 □ アフィリエイト申請を後回しにしていないか（審査に時間がかかる）
 ```
 
@@ -72,59 +81,65 @@ PURPOSE: ズレを検知し、補正可能にすること
 
 ```
 □ CHANGELOGのエントリーにSourceが記録されているか
-□ 「旧思想ベース」の内容が残っていないか
-  （例：実測前のratingValue・確認済みでない情報を確認済みと記述）
-□ ChatGPT由来の更新とClaude由来の更新が混在していないか
+□ 旧思想ベースの内容が残っていないか
+□ ChatGPT由来・Claude由来の更新が混在して矛盾していないか
+□ Kの意図と異なる方向でAIが動いていないか
 ```
 
 ---
 
-## L-5. Dependency Triggerのズレ検知
-
-以下が変更された場合に連鎖確認が必要：
-
-| 変更箇所 | 確認が必要な箇所 |
-|---|---|
-| ROOT.md（思想変更） | 全MODULES・全記事HTML |
-| XM記事HTML（テンプレート変更） | 全記事HTMLへの影響 |
-| support-log設計変更 | 全記事内のsupport-logリンク |
-| フェーズ移行 | title・H1・meta・ROOT.md |
-| アフィリリンク取得 | 全記事の[DEV ONLY]箇所 |
-| 独自ドメイン取得 | 全記事の内部リンク |
-
----
-
-## L-6. 将来的な /lint 実装イメージ
+## L-5. OS肥大化検知
 
 ```
-/lint実行時のチェック項目（設計中）：
-
-1. 矛盾検知
-   - 確認予定なのに「確認済み」と書かれていないか
-   - 実測前なのにreview schemaが入っていないか
-
-2. 更新漏れ検知
-   - CHANGELOG未更新の変更がないか
-   - CURRENT_STATE未更新の完了済み項目がないか
-
-3. 旧思想検知
-   - 禁止表現が残っていないか
-   - 古いPhaseのタイトルが使われていないか
-
-4. 依存関係ズレ検知
-   - テンプレート変更が全記事に反映されているか
-   - support-log URL化後に全記事が更新されているか
+□ CURRENT_STATE.mdに「完了済み」の情報が残っていないか
+  （完了したものはCHANGELOGに移動する）
+□ ROOT.mdに実装詳細が混入していないか
+  （実装詳細はMODULES.mdへ）
+□ 同じ情報が複数ファイルに重複していないか
+□ 1ファイルがAIの1回の読み込みで処理できる範囲を超えていないか
 ```
 
 ---
 
-## L-7. 新しいAIへの引き継ぎチェックリスト
+## L-6. Dependency Triggerのズレ検知
 
 ```
-□ OS_INDEX.md を読んだか（バージョン確認）
+□ 変更後にDEPENDENCY.md D-7の「ACTIVE」項目を確認したか
+□ Triggerが発生したのに連鎖確認を行っていないか
+□ 記事変更後にCurrent Stateが更新されているか
+□ 重要な変更後にCHANGELOGにエントリーが追加されているか
+```
+
+---
+
+## L-7. 新しいAIへの引き継ぎチェックリスト（必須）
+
+```
+□ OS_INDEX.md を読んだか（バージョンとCurrent Active Stateを確認）
 □ ROOT.md を読んだか（最上位思想の同期）
-□ CURRENT_STATE.md を読んだか（現在状態の把握）
+□ CURRENT_STATE.md を読んだか（現在状態・Next Action・ブロッカーの把握）
 □ 作業内容に関連するMODULES.mdのセクションを読んだか
 □ L-1〜L-4のLINTチェックを実施したか
 □ 作業終了時にCURRENT_STATE.mdとCHANGELOG.mdを更新したか
+□ 更新によって発生したDependency Triggerを確認したか
+```
+
+---
+
+## L-8. OS運用テストチェックリスト
+
+```
+テスト1: 新チャットでの同期テスト
+  □ OS_INDEXだけ読んでCurrent Active Stateを把握できるか
+  □ ROOT.mdだけ読んでKGI・禁止思想を把握できるか
+  □ CURRENT_STATE.mdだけ読んでNext Actionがわかるか
+
+テスト2: ChatGPT→Claudeへの引き継ぎテスト
+  □ ChatGPTが更新したCHANGELOGをClaudeが正しく読めるか
+  □ Sourceが「ChatGPT / チャット名」として記録されているか
+  □ Dependency Triggerが正しく伝わるか
+
+テスト3: Dependency Trigger確認テスト
+  □ XM記事HTMLを変更した時に全記事への影響確認が行われるか
+  □ SL-004完成時にXM記事の更新が漏れないか
 ```
