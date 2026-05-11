@@ -1,10 +1,11 @@
 # S++ Cognitive Operating System
 
 ```
-Version:      2.1.2
+Version:      2.1.3
 Last Updated: 2026-05-10
 Status:       ACTIVE
 OS Phase:     運用耐性固定フェーズ
+Source:       Claude / S++初代チャット + ChatGPT / S++基盤chat
 ```
 
 ---
@@ -24,18 +25,15 @@ https://s-plus-plus.vercel.app/dev-dashboard/
 ## ▼ 役割分離
 
 ```
-Vercel Dev Dashboard:
-  人間向けUI・進捗確認・Dev管理用
-
-GitHub raw OS_INDEX（このファイル）:
-  AI同期用Root Entry・Bootstrap Loader
-  ※全情報を格納する場所ではない
-  ※AIが最低限同期するための入口
+Vercel Dev Dashboard  : 人間向けUI・進捗確認・Dev管理用
+GitHub raw OS_INDEX   : AI同期用Root Entry・Bootstrap Loader
+                        ※全情報を格納する場所ではない
+                        ※AIが最低限同期するための入口
 ```
 
 ---
 
-## ▼ AI同期標準プロンプト（このまま使用すること）
+## ▼ AI同期標準プロンプト
 
 ```
 S++ Cognitive Operating Systemに同期してください。
@@ -47,26 +45,70 @@ https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dash
 Current State / Next Action / Active Modules / Critical Updates を整理してください。
 
 不足情報がある場合は、
-必要なファイル名またはModule名を具体的に指定して、
+必要なModule名・Raw URL・Human URLを明示して、
 Kへ追加共有を要求してください。
 ```
 
 ---
 
-## ▼ 不足情報要求ルール（AIはこの形式でKへ要求する）
+## ▼ FETCH FAILURE FALLBACK RULE（重要）
+
+Root Entry取得に失敗した場合：
 
 ```
-作業を進めるには以下のModuleが必要です。
+❌ 禁止：検索・推測・無関係リポジトリへのフォールバック
+✅ 必須：Kへ以下のみ要求する
 
-必要Module: [ファイル名]
-理由: [〇〇の判断に必要なため]
+必要情報:
+  OS_INDEX.md全文
+
+理由:
+  Root Entry取得失敗のため、最低限同期に必要
 
 対応:
-以下のURLを開いて、内容を全てコピーしてこのチャットに貼り付けてください。
-https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/[ファイル名]
+  KはOS_INDEX.mdの全文をこのチャットへ貼り付けてください。
+  （GitHub: https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/OS_INDEX.md）
+```
+
+---
+
+## ▼ MISSING MODULE REQUEST RULE
+
+AIが追加Moduleを要求する場合、必ず以下の形式で提示すること：
+
+```
+必要Module:
+  [ファイル名]
+
+Raw URL:
+  https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/[ファイル名]
+
+Human URL:
+  https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/[ファイル名]
+
+理由:
+  [〇〇の判断に必要なため]
+
+対応:
+  Raw URLが取得できない場合は、Human URLを開いて全文をコピーし、
+  このチャットへ貼り付けてください。
 ```
 
 Kがどの情報を渡すべきか考える必要はない。AIが特定して指示する。
+
+---
+
+## ▼ UNKNOWN MODULE REQUEST 禁止
+
+```
+❌ 禁止：OS_INDEXに記載されていないModule名を既存Moduleとして要求する
+✅ 必須：必要と判断した場合は「新規Module候補」として提案し、
+         既存Moduleとは分離して扱うこと
+
+例：
+「新規Module候補として [Module名] の作成を提案します。
+ 既存Moduleとは別に、Kの判断後に追加してください。」
+```
 
 ---
 
@@ -192,7 +234,7 @@ SL-007: ThreeTrader / 安全性 / 📊 実測済み・反映済み
 
 ```
 ✅ XM Trading記事（5本・HTML実装済み・開発環境公開）
-✅ dev-dashboard・OS v2.1.2・TOPページ導線
+✅ dev-dashboard・OS v2.1.3・TOPページ導線
 ✅ FXロット計算ツール（公開済み）
 
 🔄 MD完成・HTML未実装：
@@ -228,18 +270,32 @@ MOD-AI / MOD-EA / MOD-JOURNAL / MOD-WIKI: PLANNED（長期）
 
 ---
 
-## ▼ DETAIL MODULES（詳細が必要な場合）
+## ▼ DETAIL MODULES一覧
 
 ```
-ROOT.md          → 最上位思想の詳細・KGI・Kプロフィール詳細
-MODULES.md       → 各モジュールの詳細
-CURRENT_STATE.md → 現在状態・保留・危険事項の詳細
-CHANGELOG.md     → 全変更履歴・Source管理
-DEPENDENCY.md    → 論理依存構造の詳細・Trigger
-LINT_RULES.md    → ズレ検知・Trigger Rules・引き継ぎチェック
+ROOT.md
+  Raw : https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/ROOT.md
+  Human: https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/ROOT.md
 
-GitHub URL:
-https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/[ファイル名]
+MODULES.md
+  Raw : https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/MODULES.md
+  Human: https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/MODULES.md
+
+CURRENT_STATE.md
+  Raw : https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/CURRENT_STATE.md
+  Human: https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/CURRENT_STATE.md
+
+CHANGELOG.md
+  Raw : https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/CHANGELOG.md
+  Human: https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/CHANGELOG.md
+
+DEPENDENCY.md
+  Raw : https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/DEPENDENCY.md
+  Human: https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/DEPENDENCY.md
+
+LINT_RULES.md
+  Raw : https://raw.githubusercontent.com/napepalrecords-cyber/s-plus-plus/main/dev-dashboard/os/LINT_RULES.md
+  Human: https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/LINT_RULES.md
 ```
 
 ---
@@ -247,16 +303,27 @@ https://github.com/napepalrecords-cyber/s-plus-plus/blob/main/dev-dashboard/os/[
 ## ▼ LATEST CHANGELOG
 
 ```
-[v2.1.2] 2026-05-10
+[v2.1.3] 2026-05-10
 SOURCE: Claude / S++初代チャット + ChatGPT / S++基盤chat
+CHANGE:
+  - Fetch Failure Fallback Rule追加
+    （取得失敗時は検索・推測禁止・KへOS_INDEX全文を要求）
+  - Missing Module Request Rule強化
+    （Raw URL・Human URL・理由・操作手順の明示を必須化）
+  - Unknown Module Request禁止
+    （未記載Moduleは新規Module候補として提案・既存と分離）
+IMPACT: 全AI・全チャット（Gemini含む取得失敗環境への対応）
+
+[v2.1.2] 2026-05-10
+SOURCE: Claude + ChatGPT
 CHANGE: GitHub raw URLを正式AI同期Root Entryに設定。
-        VercelとGitHub rawの役割を分離。
-        Bootstrap Loader型に再調整。
-        AI同期標準プロンプト・不足情報要求ルールを明記。
-        public-safe確認済み。
-IMPACT: 全AI・全チャット（どのAIでも同期可能に）
+        VercelとGitHub rawの役割分離。Bootstrap Loader型に再調整。
 
 [v2.1.1] 2026-05-10
 SOURCE: Claude + ChatGPT
 CHANGE: OS_INDEXを完全自己完結型に改修
+
+[v2.1.0] 2026-05-10
+SOURCE: Claude + ChatGPT
+CHANGE: OS運用耐性固定フェーズへ移行。7ファイル構造に強化。
 ```
